@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "start": "vue-cli-service serve"
   },
   "dependencies": {
     "@vue/composition-api": "^1.4.3",
+    "bcryptjs": "^2.4.3",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-recaptcha": "2.0.1",

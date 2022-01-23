@@ -1954,6 +1954,11 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+bcryptjs@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.nlark.com/bcryptjs/download/bcryptjs-2.4.3.tgz#9ab5627b93e60621ff7cdac5da9733027df1d0cb"
+  integrity sha1-mrVie5PmBiH/fNrF2pczAn3x0Ms=
+
 bfj@^6.1.1:
   version "6.1.2"
   resolved "https://registry.nlark.com/bfj/download/bfj-6.1.2.tgz#325c861a822bcb358a41c78a33b8e6e2086dde7f"
@@ -8277,7 +8282,7 @@ vm-browserify@^1.0.1:
 
 vue-cli-plugin-axios@~0.0.4:
   version "0.0.4"
-  resolved "https://registry.npm.taobao.org/vue-cli-plugin-axios/download/vue-cli-plugin-axios-0.0.4.tgz#29d4eb48275c7fe15b92e1fd5d95fbe2a966436f"
+  resolved "https://registry.npmmirror.com/vue-cli-plugin-axios/download/vue-cli-plugin-axios-0.0.4.tgz#29d4eb48275c7fe15b92e1fd5d95fbe2a966436f"
   integrity sha1-KdTrSCdcf+FbkuH9XZX74qlmQ28=
 
 vue-cli-plugin-vuetify@~2.4.5:

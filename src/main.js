@@ -1,15 +1,19 @@
 import Vue from 'vue'
-import './plugins/axios'
 import App from './index.vue'
 import vuetify from './plugins/vuetify'
 import router from './router'
 import store from './store'
+import notifyPlugin from "@/plugins/notify"
+import axios from "@/plugins/axios";
 
 Vue.config.productionTip = false
 
+Vue.use(notifyPlugin, {store})
+Vue.prototype.$axios = axios
+
 new Vue({
-  vuetify,
-  router,
-  store,
-  render: h => h(App)
+    vuetify,
+    router,
+    store,
+    render: h => h(App)
 }).$mount('#app')

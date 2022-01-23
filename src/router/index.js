@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Vue from "vue"
+import VueRouter from "vue-router"
 import Main from "@/pages/Main";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -8,16 +8,24 @@ import App from "@/pages/App";
 Vue.use(VueRouter)
 
 const routes = [
-  { path: "/", component: Main },
-  { path: "/login", component: Login },
-  { path: "/register", component: Register },
-  { path: "/app", component: App },
-  { path: "/:pathMatch(.*)*", name: "NotFound", redirect: '/' }
+    {path: "/", component: Main, meta: {title: "首页 - PiggyTalk"}},
+    {path: "/login", component: Login, meta: {title: "登录 - PiggyTalk"}},
+    {path: "/register", component: Register, meta: {title: "注册 - PiggyTalk"}},
+    {path: "/app", component: App},
+    {path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/"}
 ]
 
 const router = new VueRouter({
-  mode: 'history',
-  routes
+    mode: "history",
+    routes
+})
+
+router.beforeEach((to, from, next) => {
+  /* 路由发生变化修改页面title */
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+  next()
 })
 
 export default router

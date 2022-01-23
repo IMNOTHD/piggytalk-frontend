@@ -3,6 +3,7 @@
     <v-main>
       <div style="height: 100%; width: 100%">
         <router-view/>
+        <Notify />
       </div>
     </v-main>
   </v-app>
@@ -10,11 +11,11 @@
 
 <script>
 
+
+import Notify from "@/components/Notify";
 export default {
   name: 'App',
-
-  components: {},
-
+  components: {Notify},
   data: () => ({
     //
   }),

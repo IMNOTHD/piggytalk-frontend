@@ -12,7 +12,7 @@
         </div>
       </v-card-text>
       <v-card-text class="mt-4">
-        <v-form>
+        <v-form ref="registerForm">
           <v-container>
             <v-row>
               <v-col class="pa-0">
@@ -22,7 +22,7 @@
                     label="用户名"
                     dense
                     :rules="[rules.required, rules.username]"
-                    hint="3-16位，仅数字和字母"
+                    hint="3-16位，仅数字和字母，且需以字母开头"
                     suffix="*"
                     placeholder="唯一登录凭证，不可修改"/>
               </v-col>
@@ -76,6 +76,20 @@
                     placeholder="输入您的手机号"/>
               </v-col>
             </v-row>
+            <v-row>
+              <v-col class="pa-0">
+                <v-text-field
+                    v-model="accountData.nickname"
+                    outlined
+                    label="昵称"
+                    dense
+                    :rules="[rules.required]"
+                    hint="最长32个字符"
+                    maxlength="32"
+                    suffix="*"
+                    placeholder="输入您的昵称"/>
+              </v-col>
+            </v-row>
           </v-container>
         </v-form>
       </v-card-text>
@@ -96,8 +110,11 @@
                 sitekey="6LfCMxQeAAAAANRKRJah13Go_irRkTDeDQbtyk1_"
                 size="invisible"
                 @verify="onCaptchaVerify"
-                @expired="onCaptchaExpired">
-              <v-btn color="primary">
+                @expired="$refs.reCaptcha.reset()">
+              <v-btn
+                  color="primary"
+                  :loading="registerBtnLoader"
+                  :disabled="registerBtnLoader">
                 <div class="mx-3">注&nbsp;&nbsp;册</div>
               </v-btn>
             </vue-recaptcha>
@@ -111,6 +128,8 @@
 
 <script>
 import {VueRecaptcha} from 'vue-recaptcha';
+import account from "@/rpc/http/account/account";
+import bcrypt from "bcryptjs"
 
 export default {
   name: "Register",
@@ -125,11 +144,13 @@ export default {
         confirmPassword: "",
         email: "",
         phone: "",
+        nickname: "",
       },
+      registerBtnLoader: false,
       rules: {
         required: value => !!value || '必填项',
         username: value => {
-          const pattern = /^[a-zA-Z0-9_]{3,16}$/
+          const pattern = /^[a-zA-Z][a-zA-Z0-9_]{2,15}$/
           return pattern.test(value) || '无效的用户名'
         },
         password: value => {
@@ -153,14 +174,36 @@ export default {
   },
   methods: {
     checkConfirmPassword(confirmPassword) {
-      return confirmPassword === this.accountData.password || "重复密码错误"
+      return confirmPassword === this.accountData.password || "重复密码错误";
     },
-    onCaptchaVerify(reCaptchaToken) {
-      console.log(reCaptchaToken)
+    async onCaptchaVerify(reCaptchaToken) {
+      if (!this.$refs.registerForm.validate()) {
+        //return;
+      }
+
+      this.registerBtnLoader = true;
+      let result = await account.register({
+        username: this.accountData.username,
+        password: bcrypt.hashSync(this.accountData.password + "piggytalk"),
+        email: this.accountData.email,
+        phone: this.accountData.phone,
+        nickname: this.accountData.nickname,
+        reCaptchaToken: reCaptchaToken,
+      });
+      this.registerBtnLoader = false;
+
+      if (result.data.code !== 200) {
+        this.$notify.error(result.data.message);
+      } else {
+        this.$store.commit("userInfo/setUserInfo", {
+          username: this.accountData.username,
+          email: this.accountData.email,
+          phone: this.accountData.phone.slice(0, 3) + "******" + this.accountData.phone.slice(-2),
+          nickname: this.accountData.nickname,
+        });
+        await this.$router.push('/app');
+      }
     },
-    onCaptchaExpired() {
-      this.$refs.reCaptcha.reset();
-    }
   }
 }
 </script>
@@ -172,5 +215,46 @@ export default {
   width: 100%;
   background-size: cover;
   display: flex;
+}
+
+.custom-loader {
+  animation: loader 1s infinite;
+  display: flex;
+}
+
+@-moz-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@-o-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
