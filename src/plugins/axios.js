@@ -11,7 +11,7 @@ let config = {
     // withCredentials: true, // Check cross-site Access-Control
     baseURL: 'http://localhost:8080',
     timeout: 10 * 1000,
-    withCredentials: false,
+    withCredentials: true,
 };
 
 const pendingMap = new Map();
@@ -54,9 +54,6 @@ function post(url, params) {
             }, err => {
                 reject(err);
             })
-            .catch((error) => {
-                reject(error)
-            })
     })
 }
 
@@ -67,9 +64,6 @@ function get(url, param) {
                 resolve(response)
             }, err => {
                 reject(err)
-            })
-            .catch((error) => {
-                reject(error)
             })
     })
 }

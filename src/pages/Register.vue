@@ -129,7 +129,7 @@
 <script>
 import {VueRecaptcha} from 'vue-recaptcha';
 import account from "@/rpc/http/account/account";
-import bcrypt from "bcryptjs"
+import md5 from "md5";
 
 export default {
   name: "Register",
@@ -178,30 +178,44 @@ export default {
     },
     async onCaptchaVerify(reCaptchaToken) {
       if (!this.$refs.registerForm.validate()) {
-        //return;
+        return;
       }
+
+      let exit = false;
 
       this.registerBtnLoader = true;
       let result = await account.register({
         username: this.accountData.username,
-        password: bcrypt.hashSync(this.accountData.password + "piggytalk"),
+        password: md5(this.accountData.password + "piggytalk"),
         email: this.accountData.email,
         phone: this.accountData.phone,
         nickname: this.accountData.nickname,
         reCaptchaToken: reCaptchaToken,
+      }).catch(reason => {
+        if (reason.response.data !== undefined) {
+          exit = true;
+          this.$notify.error(reason.response.data.message, 5000);
+        } else {
+          exit = true;
+          this.$notify.error(reason, 5000);
+        }
       });
       this.registerBtnLoader = false;
+      if (exit) {
+        return;
+      }
 
       if (result.data.code !== 200) {
         this.$notify.error(result.data.message);
       } else {
+        this.$cookies.set("token", result.data.data.token, new Date().setFullYear(new Date().getFullYear() + 1));
         this.$store.commit("userInfo/setUserInfo", {
           username: this.accountData.username,
           email: this.accountData.email,
           phone: this.accountData.phone.slice(0, 3) + "******" + this.accountData.phone.slice(-2),
           nickname: this.accountData.nickname,
         });
-        await this.$router.push('/app');
+        this.$router.push('/app');
       }
     },
   }
@@ -215,46 +229,5 @@ export default {
   width: 100%;
   background-size: cover;
   display: flex;
-}
-
-.custom-loader {
-  animation: loader 1s infinite;
-  display: flex;
-}
-
-@-moz-keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@-webkit-keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@-o-keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>

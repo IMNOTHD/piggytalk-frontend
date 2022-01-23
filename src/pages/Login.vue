@@ -12,16 +12,19 @@
         </div>
       </v-card-text>
       <v-card-text class="mt-4">
-        <v-form>
+        <v-form ref="loginForm">
           <v-text-field
+              v-model="accountData.account"
               outlined
               label="帐号"
+              :rules="[rules.required]"
               placeholder="输入您的用户名/手机号/邮箱"/>
           <v-text-field
+              v-model="accountData.password"
               class="mt-n1"
               outlined
-              hide-details
               label="密码"
+              :rules="[rules.required]"
               placeholder="输入您的密码"
               type="password"/>
         </v-form>
@@ -29,7 +32,7 @@
             text
             color="primary"
             style="font-weight: 500; text-align: left"
-            class="pa-0 mt-1">
+            class="pa-0 mt-n4">
           忘记了密码？
         </v-btn>
       </v-card-text>
@@ -50,8 +53,11 @@
                 sitekey="6LfCMxQeAAAAANRKRJah13Go_irRkTDeDQbtyk1_"
                 size="invisible"
                 @verify="onCaptchaVerify"
-                @expired="onCaptchaExpired">
-              <v-btn color="primary">
+                @expired="$refs.reCaptcha.reset()">
+              <v-btn
+                  color="primary"
+                  :loading="loginBtnLoader"
+                  :disabled="loginBtnLoader">
                 <div class="mx-3">登&nbsp;&nbsp;录</div>
               </v-btn>
             </vue-recaptcha>
@@ -65,6 +71,8 @@
 
 <script>
 import {VueRecaptcha} from 'vue-recaptcha';
+import account from "@/rpc/http/account/account";
+import md5 from "md5";
 
 export default {
   name: "Login",
@@ -72,13 +80,57 @@ export default {
     VueRecaptcha
   },
   data: () => ({
-    onCaptchaVerify: (reCaptchaToken) => {
-      console.log(reCaptchaToken)
+    loginBtnLoader: false,
+    accountData: {
+      account: "",
+      password: "",
     },
-    onCaptchaExpired: () => {
-      this.$refs.reCaptcha.reset();
-    }}),
-  methods: {},
+    rules: {
+      required: value => !!value || '必填项',
+    },
+  }),
+  methods: {
+    async onCaptchaVerify(reCaptchaToken) {
+      if (!this.$refs.loginForm.validate()) {
+        return;
+      }
+
+      let exit = false;
+
+      this.loginBtnLoader = true;
+      let result = await account.login({
+        account: this.accountData.account,
+        password: md5(this.accountData.password + "piggytalk"),
+        reCaptchaToken: reCaptchaToken,
+      }).catch(reason => {
+        if (reason.response.data !== undefined) {
+          exit = true;
+          this.$notify.error(reason.response.data.message, 5000);
+        } else {
+          exit = true;
+          this.$notify.error(reason, 5000);
+        }
+      });
+      this.loginBtnLoader = false;
+      if (exit) {
+        return;
+      }
+
+      if (result.data.code !== 200) {
+        this.$notify.error(result.data.message);
+      } else {
+        this.$cookies.set("token", result.data.data.token, new Date().setFullYear(new Date().getFullYear() + 1));
+        this.$store.commit("userInfo/setUserInfo", {
+          username: result.data.data.username,
+          email: result.data.data.email,
+          phone: result.data.data.phone,
+          nickname: result.data.data.nickname,
+          avatar: result.data.data.avatar,
+        });
+        await this.$router.push('/app');
+      }
+    },
+  },
 }
 </script>
 
