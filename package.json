@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@vue/composition-api": "^1.4.3",
+    "babel-plugin-component": "^1.1.1",
     "bcryptjs": "^2.4.3",
     "core-js": "^3.6.5",
+    "element-ui": "^2.15.6",
     "md5": "^2.3.0",
     "vue": "^2.6.11",
     "vue-cookies": "^1.7.4",
