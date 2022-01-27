@@ -5,11 +5,10 @@
            style="height: 100%">
         <div v-if="openContact">
           <v-navigation-drawer
-              permanent
-              color="primary darken-3">
+              permanent>
             <v-overlay
-                color="white"
-                opacity="0.24">
+                :color="$vuetify.theme.dark ? 'white' : '#212121'"
+                :opacity="$vuetify.theme.dark ? 0.24 : 0.12">
 
             </v-overlay>
           </v-navigation-drawer>
@@ -18,8 +17,7 @@
           <v-navigation-drawer
               permanent
               v-model="drawer"
-              :mini-variant="miniMessage"
-              color="primary darken-3 inherit">
+              :mini-variant="miniMessage">
             <v-list nav>
               <v-list-item
                   active-class="ml-n3 pl-5"
@@ -57,7 +55,10 @@
 
             <template v-slot:append>
               <div class="pa-2">
-                <v-btn block @click.stop="miniMessage = !miniMessage">
+                <v-btn
+                    color="success"
+                    block
+                    @click.stop="miniMessage = !miniMessage">
                   <h1 v-if="miniMessage">&gt;</h1>
                   <h1 v-else>&lt;</h1>
                 </v-btn>
@@ -68,8 +69,8 @@
       </div>
     </el-aside>
     <el-container>
-      <el-header style="background: #004d9f">Header</el-header>
-      <el-main style="background: #004d9f">Main</el-main>
+      <el-header>Header</el-header>
+      <el-main>Main</el-main>
     </el-container>
   </el-container>
 </template>
@@ -122,6 +123,7 @@ export default {
     ],
   }),
   mounted() {
+    console.log(this.$vuetify.theme.dark)
     this.messageBoxInnerHeight = window.innerHeight - 72 - 1 - 52 - 16;
     window.onresize = () => {
       this.messageBoxInnerHeight = window.innerHeight - 72 - 1 - 52 - 16;
@@ -131,5 +133,9 @@ export default {
 </script>
 
 <style scoped>
+>>> .v-navigation-drawer__border {
+  width: 0 !important;
+}
+
 
 </style>
