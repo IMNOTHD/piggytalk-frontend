@@ -1,6 +1,6 @@
 <template>
   <div>
-
+    <v-btn @click="$router.push('/login')"></v-btn>
   </div>
 </template>
 
@@ -13,3 +13,5 @@ export default {
 <style scoped>
 
 </style>
+
+
