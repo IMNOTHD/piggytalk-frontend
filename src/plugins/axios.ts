@@ -1,11 +1,11 @@
-import axios from "axios"
+import axios, {AxiosRequestConfig} from "axios"
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
 // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
-let config = {
+const config = {
     // baseURL: process.env.baseURL || process.env.apiUrl || ""
     // timeout: 60 * 1000, // Timeout
     // withCredentials: true, // Check cross-site Access-Control
@@ -46,7 +46,7 @@ _axios.interceptors.response.use(
     }
 );
 
-function post(url, params) {
+function post(url: string, params: any) {
     return new Promise((resolve, reject) => {
         _axios.post(url, params)
             .then(response => {
@@ -57,7 +57,7 @@ function post(url, params) {
     })
 }
 
-function get(url, param) {
+function get(url: string, param: any) {
     return new Promise((resolve, reject) => {
         _axios.get(url, {params: param})
             .then(response => {
@@ -78,17 +78,16 @@ export default {
  * @param {*} config
  * @returns string
  */
-function getPendingKey(config) {
-    let {url, method, params, data} = config;
-    if (typeof data === 'string') data = JSON.parse(data); // response里面返回的config.data是个字符串对象
-    return [url, method, JSON.stringify(params), JSON.stringify(data)].join('&');
+function getPendingKey(config: AxiosRequestConfig) {
+    if (typeof config.data === 'string') config.data = JSON.parse(config.data); // response里面返回的config.data是个字符串对象
+    return [config.url, config.method, JSON.stringify(config.params), JSON.stringify(config.data)].join('&');
 }
 
 /**
  * 储存每个请求唯一值, 也就是cancel()方法, 用于取消请求
  * @param {*} config
  */
-function addPending(config) {
+function addPending(config: AxiosRequestConfig) {
     const pendingKey = getPendingKey(config);
     config.cancelToken = config.cancelToken || new axios.CancelToken((cancel) => {
         if (!pendingMap.has(pendingKey)) {
@@ -101,7 +100,7 @@ function addPending(config) {
  * 删除重复的请求
  * @param {*} config
  */
-function removePending(config) {
+function removePending(config: AxiosRequestConfig) {
     const pendingKey = getPendingKey(config);
     if (pendingMap.has(pendingKey)) {
         const cancelToken = pendingMap.get(pendingKey);

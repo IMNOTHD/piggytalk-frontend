@@ -10,8 +10,6 @@
 </template>
 
 <script>
-
-
 import Notify from "@/components/Notify";
 export default {
   name: 'App',

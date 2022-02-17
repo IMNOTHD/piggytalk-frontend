@@ -192,12 +192,11 @@ export default {
         nickname: this.accountData.nickname,
         reCaptchaToken: reCaptchaToken,
       }).catch(reason => {
-        if (reason.response.data !== undefined) {
-          exit = true;
-          this.$notify.error(reason.response.data.message, 5000);
+        exit = true;
+        if (reason.response !== undefined) {
+          this.$Vnotify.error(reason.response.data.message, 5000);
         } else {
-          exit = true;
-          this.$notify.error(reason, 5000);
+          this.$Vnotify.error("服务错误", 5000);
         }
       });
       this.registerBtnLoader = false;
@@ -206,7 +205,7 @@ export default {
       }
 
       if (result.data.code !== 200) {
-        this.$notify.error(result.data.message);
+        this.$Vnotify.error(result.data.message);
       } else {
         this.$cookies.set("token", result.data.data.token, new Date().setFullYear(new Date().getFullYear() + 1));
         this.$store.commit("userInfo/setUserInfo", {

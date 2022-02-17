@@ -4,7 +4,7 @@ const state = () => ({
 });
 
 const mutations = {
-    showMessage(state, payload) {
+    showMessage(state: any, payload: any) {
         if (payload.content !== "") {
             state.content = payload.content;
             state.color = payload.color;

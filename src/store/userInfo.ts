@@ -7,7 +7,7 @@ const state = () => ({
 });
 
 const mutations = {
-    setUserInfo(state, payload) {
+    setUserInfo(state: any, payload: any) {
         state.username = payload.username;
         state.email = payload.email;
         state.phone = payload.phone;

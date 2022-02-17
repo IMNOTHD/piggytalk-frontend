@@ -1,4 +1,4 @@
-// protoc .\src\rpc\grpc\event_stream.proto --js_out=import_style=commonjs:. --grpc-web_out=import_style=commonjs,mode=grpcwebtext:.
+// protoc --plugin=protoc-gen-ts=..\..\..\..\..\node_modules\.bin\protoc-gen-ts.cmd --ts_out=. -I .\event_stream.proto
 syntax = "proto3";
 
 package gateway.api.event.v1;
