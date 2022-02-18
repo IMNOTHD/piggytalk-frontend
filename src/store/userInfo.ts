@@ -1,13 +1,21 @@
-const state = () => ({
+export interface State {
+    username: string,
+    email: string,
+    phone: string,
+    avatar: string,
+    nickname: string,
+}
+
+const state : State = {
     username: "",
     email: "",
     phone: "",
     avatar: "",
     nickname: "",
-});
+}
 
 const mutations = {
-    setUserInfo(state: any, payload: any) {
+    setUserInfo(state: State, payload: State) {
         state.username = payload.username;
         state.email = payload.email;
         state.phone = payload.phone;
@@ -16,9 +24,7 @@ const mutations = {
     }
 };
 
-const actions = {
-
-};
+const actions = {};
 
 export default {
     namespaced: true,

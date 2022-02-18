@@ -1,10 +1,23 @@
-const state = () => ({
+export interface State {
+    content: string,
+    color: string,
+    timeout: number,
+}
+
+export interface MessagePayload {
+    content: string,
+    color: string,
+    timeout: number,
+}
+
+const state: State = {
     content: "",
     color: "",
-});
+    timeout: 6000,
+};
 
 const mutations = {
-    showMessage(state: any, payload: any) {
+    showMessage(state: State, payload: MessagePayload) {
         if (payload.content !== "") {
             state.content = payload.content;
             state.color = payload.color;
