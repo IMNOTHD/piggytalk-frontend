@@ -55,6 +55,7 @@
                 @verify="onCaptchaVerify"
                 @expired="$refs.reCaptcha.reset()">
               <v-btn
+                  ref="loginBtn"
                   color="primary"
                   :loading="loginBtnLoader"
                   :disabled="loginBtnLoader">

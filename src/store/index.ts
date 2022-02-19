@@ -14,7 +14,7 @@ export interface State {
     userInfo: UserInfoState,
 }
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
     state: {},
     mutations: {},
     actions: {},
@@ -23,3 +23,6 @@ export default new Vuex.Store({
         userInfo,
     }
 })
+
+
+export default store

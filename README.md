@@ -1,5 +1,8 @@
 # piggytalk-frontend
 
+## 注意
+```由于grpc接口设计原因，这个前端程序并不能在Web下运行，只适用于electron(grpc-node)，参考https://grpc.io/blog/state-of-grpc-web```
+
 ## Project setup
 ```
 yarn install

@@ -150,6 +150,8 @@
 </template>
 
 <script>
+import {ipcRenderer} from "electron";
+
 export default {
   name: "App",
   data: () => ({
@@ -163,8 +165,6 @@ export default {
       {title: 'Home', icon: 'mdi-home-city'},
       {title: 'My Account', icon: 'mdi-account'},
       {title: 'Users', icon: 'mdi-account-group-outline'},
-      {title: 'Users', icon: 'mdi-account-group-outline'},
-      {title: 'Users', icon: 'mdi-account-group-outline'},
     ],
     eventCall: null
   }),
@@ -175,6 +175,8 @@ export default {
     window.onresize = () => {
       this.messageBoxInnerHeight = window.innerHeight - 72 - 1 - 52 - 16;
     }
+
+    ipcRenderer.send("online", this.$cookies.get("token"))
   },
 }
 </script>

@@ -1,8 +1,9 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu } from 'electron'
+import { app, protocol, BrowserWindow, Menu, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import event_stream_client from "@/rpc/grpc/event_stream/v1/event_stream_client";
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -22,10 +23,11 @@ async function createWindow() {
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
+      // Go vue.config.jsl
       // @ts-ignore
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
-    }
+    },
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -83,3 +85,5 @@ if (isDevelopment) {
     })
   }
 }
+
+event_stream_client(ipcMain)

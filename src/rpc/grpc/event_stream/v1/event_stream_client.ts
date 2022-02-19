@@ -1,50 +1,73 @@
-import * as grpc from "@grpc/grpc-js"
-import {EventStreamRequest, EventStreamResponse} from "./event_stream_pb";
-import {EventStreamClient} from "./event_stream_grpc_pb"
+import * as grpc from "@grpc/grpc-js";
+import {BeatHeartRequest, EventStreamRequest, EventStreamResponse, OnlineRequest} from "./event_stream_pb";
+import {EventStreamClient} from "./event_stream_grpc_pb";
+import * as electron from "electron";
 
 // const messages = require('./event_stream_pb');
 // const services = require('./event_stream_grpc_pb');
 
 const endPoint = "localhost:9090";
+let sessionId: string | undefined;
+let intervalID : NodeJS.Timer;
+let token : string = "";
 
 let client: EventStreamClient;
 
-const eventStream = () => {
+const eventStream = (t: string, ipcMain: electron.IpcMain) => {
     return new Promise<void>((resolve) => {
-        const stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse> = client.eventStream();
+        token = t;
+        const stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse> = client.eventStream({defaults: true,});
+        stream.write(new EventStreamRequest().setToken(token).setOnlinerequest(new OnlineRequest().setToken(token)));
 
         stream.on("data", (data: EventStreamResponse) => {
             switch (data.getEventCase()) {
                 case EventStreamResponse.EventCase.EVENT_NOT_SET:
                     break
                 case EventStreamResponse.EventCase.ONLINERESPONSE:
+                    sessionId = data.getOnlineresponse()?.getSessionid();
+                    beatHeart(stream);
                     break
                 case EventStreamResponse.EventCase.BEATHEARTRESPONSE:
                     break
                 case EventStreamResponse.EventCase.OFFLINERESPONSE:
+                    clearInterval(intervalID);
                     stream.end();
                     break
                 default:
                     break
             }
         });
+
         stream.on("end", () => {
+            console.log("end")
             resolve();
         });
 
-        // stream.write(req);
         // https://github.com/agreatfool/grpc_tools_node_protoc_ts/blob/master/examples/src/grpcjs/client.ts
     });
 };
 
-// eslint-disable-next-line no-unused-vars
-async function main(token: string) {
-    // eslint-disable-next-line no-unused-vars
+async function main(token: string, i: electron.IpcMain) {
     client = new EventStreamClient(endPoint, grpc.credentials.createInsecure());
-    await eventStream();
+    await eventStream(token, i);
+}
+
+export default function (i: electron.IpcMain) {
+    i.on("online", (event, token) => {
+        console.log(token)
+        main(token, i).then((_) => _);
+    })
 }
 
 //main().then((_) => _);
+const beatHeart = (stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse>) => {
+  intervalID = setInterval(() => {
+      if (sessionId != undefined) {
+          stream.write(new EventStreamRequest().setToken(token).setBeatheartrequest(new BeatHeartRequest().setSessionid(sessionId)))
+      }
+  }, 30000)
+}
+
 
 process.on("uncaughtException", (err) => {
     console.log(`process on uncaughtException error: ${err}`);
