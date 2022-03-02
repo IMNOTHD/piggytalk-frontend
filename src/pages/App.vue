@@ -177,6 +177,8 @@ export default {
     }
 
     ipcRenderer.send("online", this.$cookies.get("token"))
+    ipcRenderer.on("token-unauthenticated", () => {
+    })
   },
 }
 </script>

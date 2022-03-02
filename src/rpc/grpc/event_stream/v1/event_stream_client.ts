@@ -1,7 +1,15 @@
 import * as grpc from "@grpc/grpc-js";
-import {BeatHeartRequest, EventStreamRequest, EventStreamResponse, OnlineRequest} from "./event_stream_pb";
+import {
+    BeatHeartRequest,
+    BeatHeartResponse,
+    Code,
+    EventStreamRequest,
+    EventStreamResponse,
+    OnlineRequest
+} from "./event_stream_pb";
 import {EventStreamClient} from "./event_stream_grpc_pb";
 import * as electron from "electron";
+import Flag = BeatHeartResponse.Flag;
 
 // const messages = require('./event_stream_pb');
 // const services = require('./event_stream_grpc_pb');
@@ -10,6 +18,7 @@ const endPoint = "localhost:9090";
 let sessionId: string | undefined;
 let intervalID : NodeJS.Timer;
 let token : string = "";
+let win : electron.BrowserWindow;
 
 let client: EventStreamClient;
 
@@ -20,6 +29,13 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
         stream.write(new EventStreamRequest().setToken(token).setOnlinerequest(new OnlineRequest().setToken(token)));
 
         stream.on("data", (data: EventStreamResponse) => {
+            if (data.getCode() === Code.UNAUTHENTICATED) {
+                clearInterval(intervalID);
+                stream.end();
+                win.webContents.send("token-unauthenticated", "")
+                resolve();
+            }
+
             switch (data.getEventCase()) {
                 case EventStreamResponse.EventCase.EVENT_NOT_SET:
                     break
@@ -28,6 +44,23 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
                     beatHeart(stream);
                     break
                 case EventStreamResponse.EventCase.BEATHEARTRESPONSE:
+                    switch (data.getBeatheartresponse()?.getFlag()) {
+                        case Flag.ACK:
+                            console.log(`${new Date().toString()} beatheart ACK`);
+                            break
+                        case Flag.FIN:
+                            clearInterval(intervalID);
+                            stream.end();
+                            win.webContents.send("re-online", "")
+                            resolve();
+                            break
+                        case Flag.RST:
+                            clearInterval(intervalID);
+                            stream.end();
+                            win.webContents.send("token-unauthenticated", "")
+                            resolve();
+                            break
+                    }
                     break
                 case EventStreamResponse.EventCase.OFFLINERESPONSE:
                     clearInterval(intervalID);
@@ -52,9 +85,10 @@ async function main(token: string, i: electron.IpcMain) {
     await eventStream(token, i);
 }
 
-export default function (i: electron.IpcMain) {
+export default function (i: electron.IpcMain, w: electron.BrowserWindow) {
     i.on("online", (event, token) => {
         console.log(token)
+        win = w;
         main(token, i).then((_) => _);
     })
 }

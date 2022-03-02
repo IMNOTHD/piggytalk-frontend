@@ -13,6 +13,8 @@ protocol.registerSchemesAsPrivileged([
 
 Menu.setApplicationMenu(null);
 
+let w : BrowserWindow;
+
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
@@ -29,6 +31,8 @@ async function createWindow() {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     },
   })
+
+  w = win;
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -69,6 +73,7 @@ app.on('ready', async () => {
     }
   }
   createWindow()
+  event_stream_client(ipcMain, w)
 })
 
 // Exit cleanly on request from parent process in development mode.
@@ -86,4 +91,3 @@ if (isDevelopment) {
   }
 }
 
-event_stream_client(ipcMain)
