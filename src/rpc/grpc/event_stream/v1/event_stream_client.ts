@@ -105,7 +105,9 @@ const beatHeart = (stream: grpc.ClientDuplexStream<EventStreamRequest, EventStre
 
 process.on("uncaughtException", (err) => {
     console.log(`process on uncaughtException error: ${err}`);
+    win.webContents.send("client-error", `${err}`);
 });
 process.on("unhandledRejection", (err) => {
     console.log(`process on unhandledRejection error: ${err}`);
+    win.webContents.send("client-error", `${err}`);
 });

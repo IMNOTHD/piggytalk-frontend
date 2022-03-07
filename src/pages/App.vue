@@ -4,14 +4,78 @@
       <div class="d-flex flex-row"
            style="height: 100%">
         <div v-if="openContact">
+          <!--联系人-->
           <v-navigation-drawer
               class="no-border-drawer"
               permanent>
             <v-overlay
+                :z-index="-1"
+                class="z-bottom"
                 :color="$vuetify.theme.dark ? 'white' : '#212121'"
                 :opacity="$vuetify.theme.dark ? 0.24 : 0.12">
-
             </v-overlay>
+            <div class="d-flex">
+              <v-btn-toggle
+                  dense
+                  color="primary"
+                  v-model="contactType"
+                  mandatory
+                  tile
+                  group>
+                <v-btn
+                    value="friend"
+                    style="z-index: 100"
+                    class="ma-1"
+                    text>
+                  好友
+                </v-btn>
+                <v-btn
+                    value="group"
+                    class="ma-1"
+                    text>
+                  群聊
+                </v-btn>
+              </v-btn-toggle>
+              <v-btn
+                  class="ma-1 ml-auto"
+                  plain>
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </div>
+            <v-list nav de>
+              <v-list-item-group>
+                <div v-if="contactType === 'friend'">
+                  <v-list-item
+                      v-for="chat in friendList"
+                      :key="chat.uuid">
+                    <v-list-item-avatar size="24">
+                      <v-img
+                          :src="chat.avatar"
+                      ></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title v-text="chat.nickname"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </div>
+                <div v-else>
+                  <v-list-item
+                      v-for="chat in groupList"
+                      :key="chat.uuid">
+                    <v-list-item-avatar size="24">
+                      <v-img
+                          :src="chat.avatar"
+                      ></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title v-text="chat.nickname"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </div>
+              </v-list-item-group>
+            </v-list>
           </v-navigation-drawer>
         </div>
 
@@ -159,8 +223,27 @@ export default {
     messageBoxInnerHeight: 300,
     benched: 3,
     drawer: true,
-    openContact: false,
+    openContact: true,
     miniMessage: true,
+    contactType: "friend",
+    friendList: [
+      {
+        nickname: "123",
+        uuid: "",
+        avatar: "https://cdn.vuetifyjs.com/images/john.jpg",
+      },
+      {
+        nickname: "123",
+        uuid: "",
+        avatar: "https://cdn.vuetifyjs.com/images/john.jpg",
+      },
+      {
+        nickname: "123",
+        uuid: "",
+        avatar: "https://cdn.vuetifyjs.com/images/john.jpg",
+      }
+    ],
+    groupList: [],
     items: [
       {title: 'Home', icon: 'mdi-home-city'},
       {title: 'My Account', icon: 'mdi-account'},
@@ -179,6 +262,9 @@ export default {
     ipcRenderer.send("online", this.$cookies.get("token"))
     ipcRenderer.on("token-unauthenticated", () => {
     })
+    ipcRenderer.on("client-error", ((event, args) => {
+      this.$Vnotify.error(args, 5000);
+    }))
   },
 }
 </script>
@@ -195,6 +281,10 @@ export default {
 
 >>> .el-main {
   padding: 0 !important;
+}
+
+> > .z-bottom {
+  z-index: -1 !important;
 }
 
 </style>

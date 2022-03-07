@@ -1,7 +1,8 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 // Original file comments:
-// protoc --plugin=protoc-gen-ts=..\..\..\..\..\node_modules\.bin\protoc-gen-ts.cmd --ts_out=. -I .\event_stream.proto
+// protoc --plugin=protoc-gen-ts=..\..\..\..\..\node_modules\.bin\protoc-gen-ts.cmd --ts_out=. -I . .\event_stream.proto
+// grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. .\event_stream.proto
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var event_stream_pb = require('./event_stream_pb.js');
@@ -29,6 +30,8 @@ function deserialize_gateway_api_event_v1_EventStreamResponse(buffer_arg) {
 }
 
 
+// 任何带Notify前缀的message, 均为服务端先发
+//
 var EventStreamService = exports.EventStreamService = {
   eventStream: {
     path: '/gateway.api.event.v1.EventStream/EventStream',
