@@ -3,15 +3,18 @@ import Vuex from 'vuex'
 
 import notify from "@/store/notify";
 import userInfo from "@/store/userInfo";
+import commonUserInfo from "@/store/commonUserInfo";
 
 import {State as UserInfoState} from "@/store/userInfo";
 import {State as NotifyState} from "@/store/notify";
+import {State as CommonUserInfoState} from "@/store/commonUserInfo";
 
 Vue.use(Vuex)
 
 export interface State {
     notify: NotifyState,
     userInfo: UserInfoState,
+    commonUserInfo: CommonUserInfoState,
 }
 
 const store = new Vuex.Store({
@@ -21,6 +24,7 @@ const store = new Vuex.Store({
     modules: {
         notify,
         userInfo,
+        commonUserInfo,
     }
 })
 

@@ -5,6 +5,7 @@ import {
     Code,
     EventStreamRequest,
     EventStreamResponse,
+    ListFriendRequest, ListUserInfoRequest,
     OnlineRequest
 } from "./event_stream_pb";
 import {EventStreamClient} from "./event_stream_grpc_pb";
@@ -16,9 +17,9 @@ import Flag = BeatHeartResponse.Flag;
 
 const endPoint = "localhost:9090";
 let sessionId: string | undefined;
-let intervalID : NodeJS.Timer;
-let token : string = "";
-let win : electron.BrowserWindow;
+let intervalID: NodeJS.Timer;
+let token: string = "";
+let win: electron.BrowserWindow;
 
 let client: EventStreamClient;
 
@@ -27,6 +28,15 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
         token = t;
         const stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse> = client.eventStream({defaults: true,});
         stream.write(new EventStreamRequest().setToken(token).setOnlinerequest(new OnlineRequest().setToken(token)));
+
+        ipcMain.on("list-friend-request", () => {
+            console.log(`send list-friend-request`)
+            stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
+        })
+        ipcMain.on("userinfo-list-request", (event, args) => {
+            console.log(`send userinfo-list-request: ${args}`)
+            stream.write(new EventStreamRequest().setToken(token).setListuserinforequest(new ListUserInfoRequest().setUuidList(args)))
+        })
 
         stream.on("data", (data: EventStreamResponse) => {
             if (data.getCode() === Code.UNAUTHENTICATED) {
@@ -42,6 +52,7 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
                 case EventStreamResponse.EventCase.ONLINERESPONSE:
                     sessionId = data.getOnlineresponse()?.getSessionid();
                     beatHeart(stream);
+                    win.webContents.send("online-success", "")
                     break
                 case EventStreamResponse.EventCase.BEATHEARTRESPONSE:
                     switch (data.getBeatheartresponse()?.getFlag()) {
@@ -66,6 +77,16 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
                     clearInterval(intervalID);
                     stream.end();
                     break
+                case EventStreamResponse.EventCase.LISTFRIENDRESPONSE: {
+                    const friendList = data.getListfriendresponse()?.getFrienduuidList();
+                    win.webContents.send("friend-list", friendList)
+                    break
+                }
+                case EventStreamResponse.EventCase.LISTUSERINFORESPONSE: {
+                    const userInfoList = data.getListuserinforesponse()?.getUserinfoList();
+                    win.webContents.send("userinfo-list", userInfoList)
+                    break
+                }
                 default:
                     break
             }
@@ -95,11 +116,11 @@ export default function (i: electron.IpcMain, w: electron.BrowserWindow) {
 
 //main().then((_) => _);
 const beatHeart = (stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse>) => {
-  intervalID = setInterval(() => {
-      if (sessionId != undefined) {
-          stream.write(new EventStreamRequest().setToken(token).setBeatheartrequest(new BeatHeartRequest().setSessionid(sessionId)))
-      }
-  }, 30000)
+    intervalID = setInterval(() => {
+        if (sessionId != undefined) {
+            stream.write(new EventStreamRequest().setToken(token).setBeatheartrequest(new BeatHeartRequest().setSessionid(sessionId)))
+        }
+    }, 30000)
 }
 
 

@@ -46,16 +46,16 @@
               <v-list-item-group>
                 <div v-if="contactType === 'friend'">
                   <v-list-item
-                      v-for="chat in friendList"
-                      :key="chat.uuid">
+                      v-for="uuid in friendList"
+                      :key="uuid">
                     <v-list-item-avatar size="24">
                       <v-img
-                          :src="chat.avatar"
+                          :src="$store.state.commonUserInfo.userInfo[uuid].avatar"
                       ></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
-                      <v-list-item-title v-text="chat.nickname"></v-list-item-title>
+                      <v-list-item-title v-text="$store.state.commonUserInfo.userInfo[uuid].nickname"></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </div>
@@ -143,13 +143,27 @@
             flat>
           <v-spacer></v-spacer>
           <v-responsive max-width="156" content-class="d-flex flex-row justify-end">
-            <v-avatar
-                color="primary"
-                size="36">
-              <img
-                  src="https://cdn.vuetifyjs.com/images/john.jpg"
-                  alt="John">
-            </v-avatar>
+
+            <v-menu offset-y>
+              <template v-slot:activator="{ on, attrs }">
+                <v-avatar
+                    color="primary"
+                    size="36"
+                    v-bind="attrs"
+                    v-on="on">
+                  <img
+                      src="https://cdn.vuetifyjs.com/images/john.jpg"
+                      alt="John">
+                </v-avatar>
+              </template>
+              <v-list>
+                <v-list-item
+                    @click="avatarCropperVisible = true"
+                    link>
+                  <v-list-item-title>修改头像</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
             <v-btn
                 text
                 @click="other = !other">
@@ -210,15 +224,22 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+
+    <AvatarCropper
+        :visible="avatarCropperVisible"
+        @closeAvatarCropper="avatarCropperVisible = false"/>
   </el-container>
 </template>
 
 <script>
 import {ipcRenderer} from "electron";
+import AvatarCropper from "@/components/AvatarCropper";
 
 export default {
   name: "App",
+  components: {AvatarCropper},
   data: () => ({
+    avatarCropperVisible: false,
     other: false,
     messageBoxInnerHeight: 300,
     benched: 3,
@@ -226,7 +247,8 @@ export default {
     openContact: true,
     miniMessage: true,
     contactType: "friend",
-    friendList: [
+    friendList: [],
+    groupList: [
       {
         nickname: "123",
         uuid: "",
@@ -243,7 +265,6 @@ export default {
         avatar: "https://cdn.vuetifyjs.com/images/john.jpg",
       }
     ],
-    groupList: [],
     items: [
       {title: 'Home', icon: 'mdi-home-city'},
       {title: 'My Account', icon: 'mdi-account'},
@@ -264,6 +285,20 @@ export default {
     })
     ipcRenderer.on("client-error", ((event, args) => {
       this.$Vnotify.error(args, 5000);
+    }))
+
+    ipcRenderer.on("online-success", () => {
+      // 登录成功, 完成相应数据拉取
+      ipcRenderer.send("list-friend-request")
+    })
+
+    ipcRenderer.on("friend-list", ((event, args) => {
+      this.friendList = args
+      // 拉一遍userInfo
+      ipcRenderer.send("userinfo-list-request", args)
+    }))
+    ipcRenderer.on("userinfo-list", ((event, args) => {
+      this.$store.commit("commonUserInfo/setUserInfo", args)
     }))
   },
 }
