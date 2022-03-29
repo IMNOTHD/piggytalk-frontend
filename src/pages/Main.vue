@@ -21,9 +21,10 @@ export default {
   mounted() {
   },
   methods: {
-    onUpload() {
+    async onUpload() {
       console.log(123)
-      imgUpload(this.file)
+      const url = await imgUpload(this.file)
+      console.log(url)
     },
   },
 }
