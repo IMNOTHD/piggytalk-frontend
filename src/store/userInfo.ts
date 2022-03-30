@@ -21,7 +21,10 @@ const mutations = {
         state.phone = payload.phone;
         state.avatar = payload.avatar;
         state.nickname = payload.nickname;
-    }
+    },
+    setAvatar(state: State, payload: State) {
+        state.avatar = payload.avatar
+    },
 };
 
 const actions = {};

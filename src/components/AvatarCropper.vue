@@ -123,6 +123,7 @@
 <script>
 import {VueCropper} from 'vue-cropper'
 import imgUpload from "@/rpc/grpc/upload/v1/upload_client";
+import account from "@/rpc/http/account/account";
 
 export default {
   props: {
@@ -210,9 +211,25 @@ export default {
       this.$refs.cropper.getCropData(async (base64) => {
         let file_img = this.base64toFile(base64, this.avatarName);
         const url = await imgUpload(file_img);
-        // TODO 上传头像url
-        console.log(url)
-        // this.$emit("avatarUrl", this.avatarUrl); //把头像url传出去
+        //console.log(url)
+        let result = await account.updateAvatar({
+          token: this.$cookies.get("token"),
+          avatar: url
+        }).catch(reason => {
+          console.log(reason)
+          if (reason.response !== undefined) {
+            this.$Vnotify.error(reason.response.data.message, 5000);
+          } else {
+            this.$Vnotify.error("服务错误", 5000);
+          }
+        });
+        if (result.data.code !== 200) {
+          this.$Vnotify.error(result.data.message);
+        } else {
+          this.$store.commit("userInfo/setAvatar", {
+            avatar: url
+          });
+        }
       });
 
       this.loading = false;
