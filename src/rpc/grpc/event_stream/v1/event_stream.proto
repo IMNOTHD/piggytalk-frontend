@@ -27,6 +27,8 @@ message EventStreamRequest {
     DeleteFriendRequest deleteFriendRequest = 9;
     SingleMessageRequest singleMessageRequest = 10;
     ListUserInfoRequest listUserInfoRequest = 11;
+    ListFriendRequestRequest listFriendRequestRequest = 12;
+    AckFriendMessageRequest ackFriendMessageRequest = 13;
   }
 }
 
@@ -45,6 +47,8 @@ message EventStreamResponse {
     DeleteFriendResponse deleteFriendResponse = 11;
     SingleMessageResponse singleMessageResponse = 12;
     ListUserInfoResponse listUserInfoResponse = 13;
+    ListFriendRequestResponse listFriendRequestResponse = 14;
+    AckFriendMessageResponse ackFriendMessageResponse = 15;
   }
 }
 
@@ -120,6 +124,19 @@ message ListUserInfoRequest {
   repeated string uuid = 1;
 }
 
+// 列好友请求列表
+message ListFriendRequestRequest {
+  string token = 1;
+  // 从头查写0
+  int64 startEventId = 2;
+  int64 count = 3;
+}
+
+message AckFriendMessageRequest {
+  string token = 1;
+  repeated int64 eventId = 2;
+}
+
 // ------------------------------
 // 以下为服务端发起的response event
 
@@ -188,6 +205,21 @@ message ListUserInfoResponse {
     string nickname = 3;
   }
   repeated UserInfo userinfo = 1;
+}
+
+message ListFriendRequestResponse {
+  message AddFriendMessage {
+    string eventUuid = 1;
+    int64 eventId = 2;
+    bool ack = 3;
+    string receiverUuid = 4;
+    string senderUuid = 5;
+  }
+  repeated AddFriendMessage addFriendMessage = 1;
+}
+
+message AckFriendMessageResponse {
+  repeated string eventId = 1;
 }
 
 // ------------------------------

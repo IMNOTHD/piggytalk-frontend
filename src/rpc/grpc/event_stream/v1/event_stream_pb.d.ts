@@ -60,6 +60,16 @@ export class EventStreamRequest extends jspb.Message {
     getListuserinforequest(): ListUserInfoRequest | undefined;
     setListuserinforequest(value?: ListUserInfoRequest): EventStreamRequest;
 
+    hasListfriendrequestrequest(): boolean;
+    clearListfriendrequestrequest(): void;
+    getListfriendrequestrequest(): ListFriendRequestRequest | undefined;
+    setListfriendrequestrequest(value?: ListFriendRequestRequest): EventStreamRequest;
+
+    hasAckfriendmessagerequest(): boolean;
+    clearAckfriendmessagerequest(): void;
+    getAckfriendmessagerequest(): AckFriendMessageRequest | undefined;
+    setAckfriendmessagerequest(value?: AckFriendMessageRequest): EventStreamRequest;
+
     getEventCase(): EventStreamRequest.EventCase;
 
     serializeBinary(): Uint8Array;
@@ -85,6 +95,8 @@ export namespace EventStreamRequest {
         deletefriendrequest?: DeleteFriendRequest.AsObject,
         singlemessagerequest?: SingleMessageRequest.AsObject,
         listuserinforequest?: ListUserInfoRequest.AsObject,
+        listfriendrequestrequest?: ListFriendRequestRequest.AsObject,
+        ackfriendmessagerequest?: AckFriendMessageRequest.AsObject,
     }
 
     export enum EventCase {
@@ -99,6 +111,8 @@ export namespace EventStreamRequest {
         DELETEFRIENDREQUEST = 9,
         SINGLEMESSAGEREQUEST = 10,
         LISTUSERINFOREQUEST = 11,
+        LISTFRIENDREQUESTREQUEST = 12,
+        ACKFRIENDMESSAGEREQUEST = 13,
     }
 
 }
@@ -161,6 +175,16 @@ export class EventStreamResponse extends jspb.Message {
     getListuserinforesponse(): ListUserInfoResponse | undefined;
     setListuserinforesponse(value?: ListUserInfoResponse): EventStreamResponse;
 
+    hasListfriendrequestresponse(): boolean;
+    clearListfriendrequestresponse(): void;
+    getListfriendrequestresponse(): ListFriendRequestResponse | undefined;
+    setListfriendrequestresponse(value?: ListFriendRequestResponse): EventStreamResponse;
+
+    hasAckfriendmessageresponse(): boolean;
+    clearAckfriendmessageresponse(): void;
+    getAckfriendmessageresponse(): AckFriendMessageResponse | undefined;
+    setAckfriendmessageresponse(value?: AckFriendMessageResponse): EventStreamResponse;
+
     getEventCase(): EventStreamResponse.EventCase;
 
     serializeBinary(): Uint8Array;
@@ -188,6 +212,8 @@ export namespace EventStreamResponse {
         deletefriendresponse?: DeleteFriendResponse.AsObject,
         singlemessageresponse?: SingleMessageResponse.AsObject,
         listuserinforesponse?: ListUserInfoResponse.AsObject,
+        listfriendrequestresponse?: ListFriendRequestResponse.AsObject,
+        ackfriendmessageresponse?: AckFriendMessageResponse.AsObject,
     }
 
     export enum EventCase {
@@ -202,6 +228,8 @@ export namespace EventStreamResponse {
         DELETEFRIENDRESPONSE = 11,
         SINGLEMESSAGERESPONSE = 12,
         LISTUSERINFORESPONSE = 13,
+        LISTFRIENDREQUESTRESPONSE = 14,
+        ACKFRIENDMESSAGERESPONSE = 15,
     }
 
 }
@@ -440,6 +468,57 @@ export class ListUserInfoRequest extends jspb.Message {
 export namespace ListUserInfoRequest {
     export type AsObject = {
         uuidList: Array<string>,
+    }
+}
+
+export class ListFriendRequestRequest extends jspb.Message { 
+    getToken(): string;
+    setToken(value: string): ListFriendRequestRequest;
+    getStarteventid(): number;
+    setStarteventid(value: number): ListFriendRequestRequest;
+    getCount(): number;
+    setCount(value: number): ListFriendRequestRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListFriendRequestRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ListFriendRequestRequest): ListFriendRequestRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListFriendRequestRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListFriendRequestRequest;
+    static deserializeBinaryFromReader(message: ListFriendRequestRequest, reader: jspb.BinaryReader): ListFriendRequestRequest;
+}
+
+export namespace ListFriendRequestRequest {
+    export type AsObject = {
+        token: string,
+        starteventid: number,
+        count: number,
+    }
+}
+
+export class AckFriendMessageRequest extends jspb.Message { 
+    getToken(): string;
+    setToken(value: string): AckFriendMessageRequest;
+    clearEventidList(): void;
+    getEventidList(): Array<number>;
+    setEventidList(value: Array<number>): AckFriendMessageRequest;
+    addEventid(value: number, index?: number): number;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): AckFriendMessageRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: AckFriendMessageRequest): AckFriendMessageRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: AckFriendMessageRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): AckFriendMessageRequest;
+    static deserializeBinaryFromReader(message: AckFriendMessageRequest, reader: jspb.BinaryReader): AckFriendMessageRequest;
+}
+
+export namespace AckFriendMessageRequest {
+    export type AsObject = {
+        token: string,
+        eventidList: Array<number>,
     }
 }
 
@@ -698,6 +777,84 @@ export namespace ListUserInfoResponse {
         }
     }
 
+}
+
+export class ListFriendRequestResponse extends jspb.Message { 
+    clearAddfriendmessageList(): void;
+    getAddfriendmessageList(): Array<ListFriendRequestResponse.AddFriendMessage>;
+    setAddfriendmessageList(value: Array<ListFriendRequestResponse.AddFriendMessage>): ListFriendRequestResponse;
+    addAddfriendmessage(value?: ListFriendRequestResponse.AddFriendMessage, index?: number): ListFriendRequestResponse.AddFriendMessage;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListFriendRequestResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ListFriendRequestResponse): ListFriendRequestResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListFriendRequestResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListFriendRequestResponse;
+    static deserializeBinaryFromReader(message: ListFriendRequestResponse, reader: jspb.BinaryReader): ListFriendRequestResponse;
+}
+
+export namespace ListFriendRequestResponse {
+    export type AsObject = {
+        addfriendmessageList: Array<ListFriendRequestResponse.AddFriendMessage.AsObject>,
+    }
+
+
+    export class AddFriendMessage extends jspb.Message { 
+        getEventuuid(): string;
+        setEventuuid(value: string): AddFriendMessage;
+        getEventid(): number;
+        setEventid(value: number): AddFriendMessage;
+        getAck(): boolean;
+        setAck(value: boolean): AddFriendMessage;
+        getReceiveruuid(): string;
+        setReceiveruuid(value: string): AddFriendMessage;
+        getSenderuuid(): string;
+        setSenderuuid(value: string): AddFriendMessage;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): AddFriendMessage.AsObject;
+        static toObject(includeInstance: boolean, msg: AddFriendMessage): AddFriendMessage.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: AddFriendMessage, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): AddFriendMessage;
+        static deserializeBinaryFromReader(message: AddFriendMessage, reader: jspb.BinaryReader): AddFriendMessage;
+    }
+
+    export namespace AddFriendMessage {
+        export type AsObject = {
+            eventuuid: string,
+            eventid: number,
+            ack: boolean,
+            receiveruuid: string,
+            senderuuid: string,
+        }
+    }
+
+}
+
+export class AckFriendMessageResponse extends jspb.Message { 
+    clearEventidList(): void;
+    getEventidList(): Array<string>;
+    setEventidList(value: Array<string>): AckFriendMessageResponse;
+    addEventid(value: string, index?: number): string;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): AckFriendMessageResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: AckFriendMessageResponse): AckFriendMessageResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: AckFriendMessageResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): AckFriendMessageResponse;
+    static deserializeBinaryFromReader(message: AckFriendMessageResponse, reader: jspb.BinaryReader): AckFriendMessageResponse;
+}
+
+export namespace AckFriendMessageResponse {
+    export type AsObject = {
+        eventidList: Array<string>,
+    }
 }
 
 export class Message extends jspb.Message { 

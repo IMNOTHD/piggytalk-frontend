@@ -37,6 +37,7 @@
                 </v-btn>
               </v-btn-toggle>
               <v-btn
+                  @click="addRelationPageVisible = true"
                   class="ma-1 ml-auto"
                   plain>
                 <v-icon>mdi-plus</v-icon>
@@ -55,7 +56,8 @@
                     </v-list-item-avatar>
 
                     <v-list-item-content>
-                      <v-list-item-title v-text="$store.state.commonUserInfo.userInfo[uuid].nickname"></v-list-item-title>
+                      <v-list-item-title
+                          v-text="$store.state.commonUserInfo.userInfo[uuid].nickname"></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </div>
@@ -123,11 +125,11 @@
             <template v-slot:append>
               <div class="pa-2">
                 <v-btn
-                    color="success"
+                    color="primary"
                     block
                     @click.stop="miniMessage = !miniMessage">
-                  <h1 v-if="miniMessage">&gt;</h1>
-                  <h1 v-else>&lt;</h1>
+                  <h1 v-if="miniMessage" style="color:#fff;">&gt;</h1>
+                  <h1 v-else style="color:#fff;">&lt;</h1>
                 </v-btn>
               </div>
             </template>
@@ -152,24 +154,32 @@
                     v-bind="attrs"
                     v-on="on">
                   <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John">
+                      :src="$store.state.userInfo.avatar"
+                      alt="avatar">
                 </v-avatar>
               </template>
-              <v-list>
+              <v-list class="change-list-avatar-margin">
                 <v-list-item
                     @click="avatarCropperVisible = true"
                     link>
+                  <v-list-item-icon>
+                    <v-icon>mdi-account-convert</v-icon>
+                  </v-list-item-icon>
                   <v-list-item-title>修改头像</v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                    link>
+                  <v-list-item-icon>
+                    <v-icon>mdi-logout-variant</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title>登出</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
             <v-btn
                 text
                 @click="other = !other">
-              <v-icon dark>
-                mdi-format-list-bulleted
-              </v-icon>
+              <v-icon dark>mdi-format-list-bulleted</v-icon>
             </v-btn>
           </v-responsive>
         </v-app-bar>
@@ -225,7 +235,11 @@
       </v-list>
     </v-navigation-drawer>
 
+    <AddRelationPage
+        :visible="addRelationPageVisible"
+        @closeAddRelationPage="addRelationPageVisible = false"/>
     <AvatarCropper
+        :url="$store.state.userInfo.avatar"
         :visible="avatarCropperVisible"
         @closeAvatarCropper="avatarCropperVisible = false"/>
   </el-container>
@@ -234,12 +248,14 @@
 <script>
 import {ipcRenderer} from "electron";
 import AvatarCropper from "@/components/AvatarCropper";
+import AddRelationPage from "@/pages/App/AddRelationPage";
 
 export default {
   name: "App",
-  components: {AvatarCropper},
+  components: {AddRelationPage, AvatarCropper},
   data: () => ({
     avatarCropperVisible: false,
+    addRelationPageVisible: false,
     other: false,
     messageBoxInnerHeight: 300,
     benched: 3,
@@ -293,6 +309,7 @@ export default {
     })
 
     ipcRenderer.on("friend-list", ((event, args) => {
+      console.log(`friend-list: ${args}`)
       this.friendList = args
       // 拉一遍userInfo
       ipcRenderer.send("userinfo-list-request", args)
@@ -305,6 +322,10 @@ export default {
 </script>
 
 <style scoped>
+>>> .change-list-avatar-margin .v-list-item__icon:first-child {
+  margin-right: 12px !important;
+}
+
 >>> .no-border-drawer .v-navigation-drawer__border {
   width: 0 !important;
 }

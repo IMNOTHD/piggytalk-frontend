@@ -28,7 +28,8 @@ async function createWindow() {
       // Go vue.config.jsl
       // @ts-ignore
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      webSecurity: false,
     },
   })
 

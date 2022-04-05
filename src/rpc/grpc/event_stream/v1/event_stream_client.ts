@@ -34,8 +34,10 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
             stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
         })
         ipcMain.on("userinfo-list-request", (event, args) => {
-            console.log(`send userinfo-list-request: ${args}`)
-            stream.write(new EventStreamRequest().setToken(token).setListuserinforequest(new ListUserInfoRequest().setUuidList(args)))
+            if (args.length != 0) {
+                console.log(`send userinfo-list-request: ${args}`)
+                stream.write(new EventStreamRequest().setToken(token).setListuserinforequest(new ListUserInfoRequest().setUuidList(args)))
+            }
         })
 
         stream.on("data", (data: EventStreamResponse) => {
@@ -85,6 +87,7 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
                 case EventStreamResponse.EventCase.LISTUSERINFORESPONSE: {
                     const userInfoList = data.getListuserinforesponse()?.getUserinfoList();
                     win.webContents.send("userinfo-list", userInfoList)
+                    data.getListfriendrequestresponse()?.getAddfriendmessageList()
                     break
                 }
                 default:

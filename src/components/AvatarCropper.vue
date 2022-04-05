@@ -127,10 +127,14 @@ import account from "@/rpc/http/account/account";
 
 export default {
   props: {
+    url: String,
     visible: Boolean,
   },
   components: {VueCropper},
   watch: {
+    url(val) {
+      this.options.img = val;
+    },
     visible(val) {
       this.isVisible_editAvatarDialog = val;
     }
