@@ -37,8 +37,14 @@
                 </v-btn>
               </v-btn-toggle>
               <v-btn
+                  @click="addRelationMessagePageVisible = true"
+                  class="ma-1"
+                  plain>
+                <v-icon>mdi-message-arrow-right-outline</v-icon>
+              </v-btn>
+              <v-btn
                   @click="addRelationPageVisible = true"
-                  class="ma-1 ml-auto"
+                  class="ma-1"
                   plain>
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
@@ -153,9 +159,10 @@
                     size="36"
                     v-bind="attrs"
                     v-on="on">
-                  <img
+                  <img v-if="$store.state.userInfo.avatar !== ''"
                       :src="$store.state.userInfo.avatar"
                       alt="avatar">
+                  <span v-else class="white--text text-h5">{{$store.state.userInfo.nickname}}</span>
                 </v-avatar>
               </template>
               <v-list class="change-list-avatar-margin">
@@ -235,6 +242,9 @@
       </v-list>
     </v-navigation-drawer>
 
+    <AddRelationMessagePage
+        :visible="addRelationMessagePageVisible"
+        @closeAddRelationMessagePage="addRelationMessagePageVisible = false"/>
     <AddRelationPage
         :visible="addRelationPageVisible"
         @closeAddRelationPage="addRelationPageVisible = false"/>
@@ -249,13 +259,15 @@
 import {ipcRenderer} from "electron";
 import AvatarCropper from "@/components/AvatarCropper";
 import AddRelationPage from "@/pages/App/AddRelationPage";
+import AddRelationMessagePage from "@/pages/App/AddRelationMessagePage";
 
 export default {
   name: "App",
-  components: {AddRelationPage, AvatarCropper},
+  components: {AddRelationMessagePage, AddRelationPage, AvatarCropper},
   data: () => ({
     avatarCropperVisible: false,
     addRelationPageVisible: false,
+    addRelationMessagePageVisible: false,
     other: false,
     messageBoxInnerHeight: 300,
     benched: 3,

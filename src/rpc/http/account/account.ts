@@ -9,5 +9,8 @@ export default {
     },
     async updateAvatar(param: { token: string, avatar: string }) {
         return Vue.prototype.$axios.post(`/account/v1/avatar`, param);
+    },
+    async searchUuid(param: { uuid: string }) {
+        return Vue.prototype.$axios.get(`/account/v1/search`, param);
     }
 }

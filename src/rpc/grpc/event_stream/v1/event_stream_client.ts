@@ -1,5 +1,6 @@
 import * as grpc from "@grpc/grpc-js";
 import {
+    AddFriendRequest,
     BeatHeartRequest,
     BeatHeartResponse,
     Code,
@@ -11,6 +12,7 @@ import {
 import {EventStreamClient} from "./event_stream_grpc_pb";
 import * as electron from "electron";
 import Flag = BeatHeartResponse.Flag;
+const { v4: uuidV4 } = require('uuid')
 
 // const messages = require('./event_stream_pb');
 // const services = require('./event_stream_grpc_pb');
@@ -32,6 +34,10 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
         ipcMain.on("list-friend-request", () => {
             console.log(`send list-friend-request`)
             stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
+        })
+        ipcMain.on("add-friend-request", (event, args) => {
+            console.log(`send add-friend-request`)
+            stream.write(new EventStreamRequest().setToken(token).setAddfriendrequest(new AddFriendRequest().setReceiveruuid(args.receiverUuid).setNote(args.note).setEventuuid(uuidV4()).setSendtime(Date.now())))
         })
         ipcMain.on("userinfo-list-request", (event, args) => {
             if (args.length != 0) {
