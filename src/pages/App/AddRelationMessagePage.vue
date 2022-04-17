@@ -42,6 +42,7 @@
             </v-btn>
           </v-btn-toggle>
           <div v-if="contactType === 'friend'">
+
           </div>
           <div v-else>
           </div>
@@ -59,6 +60,9 @@ export default {
   watch: {
     visible(val) {
       this.v = val;
+      if (this.v === true) {
+        ipcRenderer.send("list-friend-request-request", {startId: 0, count: 10})
+      }
     }
   },
   name: "AddRelationMessagePage",
@@ -74,7 +78,7 @@ export default {
   },
   mounted() {
     this.lockFriend = true
-    ipcRenderer.send("list-friend-request-request", {startId: 0, count: 10})
+    //ipcRenderer.send("list-friend-request-request", {startId: 0, count: 10})
     ipcRenderer.on("list-friend-request", ((event, args) => {
       this.lockFriend = false
       if (args.length < 10) {

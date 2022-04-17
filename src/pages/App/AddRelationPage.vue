@@ -45,6 +45,7 @@
             <a-tag color="green" class="ml-1">用户</a-tag>
             <v-spacer/>
             <v-text-field
+                class="ml-2"
                 dense
                 v-model="note"
                 label="请求消息"

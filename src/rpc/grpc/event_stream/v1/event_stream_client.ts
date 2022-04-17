@@ -6,7 +6,7 @@ import {
     Code,
     EventStreamRequest,
     EventStreamResponse,
-    ListFriendRequest, ListUserInfoRequest,
+    ListFriendRequest, ListFriendRequestRequest, ListUserInfoRequest,
     OnlineRequest
 } from "./event_stream_pb";
 import {EventStreamClient} from "./event_stream_grpc_pb";
@@ -31,9 +31,13 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
         const stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse> = client.eventStream({defaults: true,});
         stream.write(new EventStreamRequest().setToken(token).setOnlinerequest(new OnlineRequest().setToken(token)));
 
+        ipcMain.on("list-friend-request-request", (event, args)=>{
+            console.log(`send list-friend-request-request`)
+            stream.write(new EventStreamRequest().setToken(token).setListfriendrequestrequest(new ListFriendRequestRequest().setToken(token).setCount(args.count).setStarteventid(args.startId)))
+        })
         ipcMain.on("list-friend-request", () => {
             console.log(`send list-friend-request`)
-            stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
+            //stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
         })
         ipcMain.on("add-friend-request", (event, args) => {
             console.log(`send add-friend-request`)
@@ -93,7 +97,26 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
                 case EventStreamResponse.EventCase.LISTUSERINFORESPONSE: {
                     const userInfoList = data.getListuserinforesponse()?.getUserinfoList();
                     win.webContents.send("userinfo-list", userInfoList)
-                    data.getListfriendrequestresponse()?.getAddfriendmessageList()
+                    break
+                }
+                case EventStreamResponse.EventCase.LISTFRIENDREQUESTRESPONSE: {
+                    const friendRequestList = data.getListfriendrequestresponse()?.getAddfriendmessageList()
+                    const list : Array<any> = new Array<any>()
+                    if (friendRequestList !== undefined) {
+                        for (let i = 0; i < friendRequestList.length; i++) {
+                            if (friendRequestList[i].getAck() === undefined) {
+                                friendRequestList[i].setAck(false)
+                            }
+                            list.push({
+                                eventUuid: friendRequestList[i].getEventid(),
+                                ack: friendRequestList[i].getAck(),
+                                eventId: friendRequestList[i].getEventid(),
+                                receiverUuid: friendRequestList[i].getReceiveruuid(),
+                                senderUuid: friendRequestList[i].getSenderuuid(),
+                            })
+                        }
+                    }
+                    win.webContents.send("list-friend-request", list)
                     break
                 }
                 default:
