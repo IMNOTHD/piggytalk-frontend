@@ -1,5 +1,6 @@
 import * as grpc from "@grpc/grpc-js";
 import {
+    AckFriendMessageRequest,
     AddFriendRequest,
     BeatHeartRequest,
     BeatHeartResponse,
@@ -12,7 +13,8 @@ import {
 import {EventStreamClient} from "./event_stream_grpc_pb";
 import * as electron from "electron";
 import Flag = BeatHeartResponse.Flag;
-const { v4: uuidV4 } = require('uuid')
+
+const {v4: uuidV4} = require('uuid')
 
 // const messages = require('./event_stream_pb');
 // const services = require('./event_stream_grpc_pb');
@@ -21,17 +23,19 @@ const endPoint = "localhost:9090";
 let sessionId: string | undefined;
 let intervalID: NodeJS.Timer;
 let token: string = "";
+let uid: string = "";
 let win: electron.BrowserWindow;
 
 let client: EventStreamClient;
 
-const eventStream = (t: string, ipcMain: electron.IpcMain) => {
+const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
     return new Promise<void>((resolve) => {
         token = t;
+        uid = u;
         const stream: grpc.ClientDuplexStream<EventStreamRequest, EventStreamResponse> = client.eventStream({defaults: true,});
         stream.write(new EventStreamRequest().setToken(token).setOnlinerequest(new OnlineRequest().setToken(token)));
 
-        ipcMain.on("list-friend-request-request", (event, args)=>{
+        ipcMain.on("list-friend-request-request", (event, args) => {
             console.log(`send list-friend-request-request`)
             stream.write(new EventStreamRequest().setToken(token).setListfriendrequestrequest(new ListFriendRequestRequest().setToken(token).setCount(args.count).setStarteventid(args.startId)))
         })
@@ -101,22 +105,38 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
                 }
                 case EventStreamResponse.EventCase.LISTFRIENDREQUESTRESPONSE: {
                     const friendRequestList = data.getListfriendrequestresponse()?.getAddfriendmessageList()
-                    const list : Array<any> = new Array<any>()
+                    const list: Array<any> = new Array<any>()
+                    const ackList: Array<number> = new Array<number>()
                     if (friendRequestList !== undefined) {
                         for (let i = 0; i < friendRequestList.length; i++) {
                             if (friendRequestList[i].getAck() === undefined) {
                                 friendRequestList[i].setAck(false)
                             }
-                            list.push({
-                                eventUuid: friendRequestList[i].getEventid(),
-                                ack: friendRequestList[i].getAck(),
-                                eventId: friendRequestList[i].getEventid(),
-                                receiverUuid: friendRequestList[i].getReceiveruuid(),
-                                senderUuid: friendRequestList[i].getSenderuuid(),
-                            })
+                            if (friendRequestList[i].getReceiveruuid() === uid) {
+                                list.push({
+                                    eventUuid: friendRequestList[i].getSenderuuid(),
+                                    //ack: friendRequestList[i].getAck(),
+                                    ack: true,
+                                    eventId: friendRequestList[i].getEventid(),
+                                    receiverUuid: friendRequestList[i].getReceiveruuid(),
+                                    senderUuid: friendRequestList[i].getSenderuuid(),
+                                })
+                                ackList.push(friendRequestList[i].getEventid())
+                            } else {
+                                list.push({
+                                    eventUuid: friendRequestList[i].getSenderuuid(),
+                                    ack: friendRequestList[i].getAck(),
+                                    eventId: friendRequestList[i].getEventid(),
+                                    receiverUuid: friendRequestList[i].getReceiveruuid(),
+                                    senderUuid: friendRequestList[i].getSenderuuid(),
+                                })
+                            }
+
                         }
                     }
                     win.webContents.send("list-friend-request", list)
+                    console.log(ackList)
+                    stream.write(new EventStreamRequest().setToken(token).setAckfriendmessagerequest(new AckFriendMessageRequest().setToken(token).setEventidList(ackList)))
                     break
                 }
                 default:
@@ -133,16 +153,16 @@ const eventStream = (t: string, ipcMain: electron.IpcMain) => {
     });
 };
 
-async function main(token: string, i: electron.IpcMain) {
+async function main(token: string, uuid: string, i: electron.IpcMain) {
     client = new EventStreamClient(endPoint, grpc.credentials.createInsecure());
-    await eventStream(token, i);
+    await eventStream(token, uuid, i);
 }
 
 export default function (i: electron.IpcMain, w: electron.BrowserWindow) {
-    i.on("online", (event, token) => {
-        console.log(token)
+    i.on("online", (event, args) => {
+        console.log(args.token)
         win = w;
-        main(token, i).then((_) => _);
+        main(args.token, args.uuid, i).then((_) => _);
     })
 }
 
@@ -156,11 +176,11 @@ const beatHeart = (stream: grpc.ClientDuplexStream<EventStreamRequest, EventStre
 }
 
 
-process.on("uncaughtException", (err) => {
-    console.log(`process on uncaughtException error: ${err}`);
-    win.webContents.send("client-error", `${err}`);
-});
-process.on("unhandledRejection", (err) => {
-    console.log(`process on unhandledRejection error: ${err}`);
-    win.webContents.send("client-error", `${err}`);
-});
+// process.on("uncaughtException", (err) => {
+//     console.log(`process on uncaughtException error: ${err}`);
+//     win.webContents.send("client-error", `${err}`);
+// });
+// process.on("unhandledRejection", (err) => {
+//     console.log(`process on unhandledRejection error: ${err}`);
+//     win.webContents.send("client-error", `${err}`);
+// });

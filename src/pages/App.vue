@@ -160,9 +160,9 @@
                     v-bind="attrs"
                     v-on="on">
                   <img v-if="$store.state.userInfo.avatar !== ''"
-                      :src="$store.state.userInfo.avatar"
-                      alt="avatar">
-                  <span v-else class="white--text text-h5">{{$store.state.userInfo.nickname}}</span>
+                       :src="$store.state.userInfo.avatar"
+                       alt="avatar">
+                  <span v-else class="white--text text-h5">{{ $store.state.userInfo.nickname }}</span>
                 </v-avatar>
               </template>
               <v-list class="change-list-avatar-margin">
@@ -308,7 +308,10 @@ export default {
       this.messageBoxInnerHeight = window.innerHeight - 72 - 1 - 52 - 16;
     }
 
-    ipcRenderer.send("online", this.$cookies.get("token"))
+    ipcRenderer.send("online", {
+      token: this.$cookies.get("token"),
+      uuid: this.$store.state.userInfo.uuid,
+    })
     ipcRenderer.on("token-unauthenticated", () => {
     })
     ipcRenderer.on("client-error", ((event, args) => {

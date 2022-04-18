@@ -127,7 +127,13 @@ export default {
           phone: result.data.data.phone,
           nickname: result.data.data.nickname,
           avatar: result.data.data.avatar,
+          uuid: result.data.data.uuid,
         });
+        this.$store.commit("commonUserInfo/setUserInfo", [{
+          uuid: result.data.data.uuid,
+          avatar: result.data.data.avatar,
+          nickname: result.data.data.nickname,
+        }])
         await this.$router.push('/app');
       }
     },

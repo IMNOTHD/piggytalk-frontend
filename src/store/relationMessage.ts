@@ -17,6 +17,9 @@ const state: State = {
 }
 
 const mutations = {
+    cleanFriendRequest(state: State) {
+        state.friendRequest = [];
+    },
     addFriendRequest(state: State, payload: Array<AddFriendMessage>) {
         for (const message of payload) {
             let i = state.friendRequest.length - 1

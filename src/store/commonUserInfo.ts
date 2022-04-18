@@ -1,4 +1,10 @@
-import {ListUserInfoResponse} from "@/rpc/grpc/event_stream/v1/event_stream_pb";
+//import {ListUserInfoResponse} from "@/rpc/grpc/event_stream/v1/event_stream_pb";
+
+interface commonUserInfo {
+    uuid: string,
+    avatar: string,
+    nickname: string,
+}
 
 export interface State {
     userInfo: {
@@ -14,10 +20,12 @@ const state: State = {
 }
 
 const mutations = {
-    setUserInfo(state: State, payload: Array<ListUserInfoResponse.UserInfo>) {
+    setUserInfo(state: State, payload: Array<commonUserInfo>) {
         payload.forEach(value => {
-            state.userInfo[value.getUuid()].avatar = value.getAvatar()
-            state.userInfo[value.getUuid()].nickname = value.getNickname()
+            state.userInfo[value.uuid] = {
+                avatar: value.avatar,
+                nickname: value.nickname,
+            }
         })
     }
 };

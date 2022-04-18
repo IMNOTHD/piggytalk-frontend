@@ -4,6 +4,7 @@ export interface State {
     phone: string,
     avatar: string,
     nickname: string,
+    uuid: string,
 }
 
 const state : State = {
@@ -12,6 +13,7 @@ const state : State = {
     phone: "",
     avatar: "",
     nickname: "",
+    uuid: "",
 }
 
 const mutations = {
@@ -21,6 +23,7 @@ const mutations = {
         state.phone = payload.phone;
         state.avatar = payload.avatar;
         state.nickname = payload.nickname;
+        state.uuid = payload.uuid;
     },
     setAvatar(state: State, payload: State) {
         state.avatar = payload.avatar
