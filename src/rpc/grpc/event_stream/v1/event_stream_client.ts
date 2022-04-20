@@ -2,12 +2,16 @@ import * as grpc from "@grpc/grpc-js";
 import {
     AckFriendMessageRequest,
     AddFriendRequest,
+    AddStatCode,
     BeatHeartRequest,
     BeatHeartResponse,
     Code,
+    ConfirmFriendRequest,
     EventStreamRequest,
     EventStreamResponse,
-    ListFriendRequest, ListFriendRequestRequest, ListUserInfoRequest,
+    ListFriendRequest,
+    ListFriendRequestRequest,
+    ListUserInfoRequest,
     OnlineRequest
 } from "./event_stream_pb";
 import {EventStreamClient} from "./event_stream_grpc_pb";
@@ -41,7 +45,7 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
         })
         ipcMain.on("list-friend-request", () => {
             console.log(`send list-friend-request`)
-            //stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
+            stream.write(new EventStreamRequest().setToken(token).setListfriendrequest(new ListFriendRequest().setToken(token)))
         })
         ipcMain.on("add-friend-request", (event, args) => {
             console.log(`send add-friend-request`)
@@ -51,6 +55,14 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
             if (args.length != 0) {
                 console.log(`send userinfo-list-request: ${args}`)
                 stream.write(new EventStreamRequest().setToken(token).setListuserinforequest(new ListUserInfoRequest().setUuidList(args)))
+            }
+        })
+        ipcMain.on("confirm-friend-request", (event, args) => {
+            console.log(`send confirm-friend-request: ${args}`)
+            if (args.allow) {
+                stream.write(new EventStreamRequest().setToken(token).setConfirmfriendrequest(new ConfirmFriendRequest().setEventuuid(args.eventUuid).setAddstatcode(AddStatCode.SUCCESS).setSendtime(Date.now())))
+            } else {
+                stream.write(new EventStreamRequest().setToken(token).setConfirmfriendrequest(new ConfirmFriendRequest().setEventuuid(args.eventUuid).setAddstatcode(AddStatCode.DENIED).setSendtime(Date.now())))
             }
         })
 
@@ -100,7 +112,17 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
                 }
                 case EventStreamResponse.EventCase.LISTUSERINFORESPONSE: {
                     const userInfoList = data.getListuserinforesponse()?.getUserinfoList();
-                    win.webContents.send("userinfo-list", userInfoList)
+                    const list: Array<any> = new Array<any>()
+                    if (userInfoList !== undefined) {
+                        for (const userInfo of userInfoList) {
+                            list.push({
+                                uuid: userInfo.getUuid(),
+                                avatar: userInfo.getAvatar(),
+                                nickname: userInfo.getNickname(),
+                            })
+                        }
+                    }
+                    win.webContents.send("userinfo-list", list)
                     break
                 }
                 case EventStreamResponse.EventCase.LISTFRIENDREQUESTRESPONSE: {
@@ -114,7 +136,7 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
                             }
                             if (friendRequestList[i].getReceiveruuid() === uid) {
                                 list.push({
-                                    eventUuid: friendRequestList[i].getSenderuuid(),
+                                    eventUuid: friendRequestList[i].getEventuuid(),
                                     //ack: friendRequestList[i].getAck(),
                                     ack: true,
                                     eventId: friendRequestList[i].getEventid(),
@@ -124,7 +146,7 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
                                 ackList.push(friendRequestList[i].getEventid())
                             } else {
                                 list.push({
-                                    eventUuid: friendRequestList[i].getSenderuuid(),
+                                    eventUuid: friendRequestList[i].getEventuuid(),
                                     ack: friendRequestList[i].getAck(),
                                     eventId: friendRequestList[i].getEventid(),
                                     receiverUuid: friendRequestList[i].getReceiveruuid(),
@@ -145,7 +167,8 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
         });
 
         stream.on("end", () => {
-            console.log("end")
+            console.log(`${nowDate()} end`)
+            win.webContents.send("end")
             resolve();
         });
 
@@ -176,11 +199,30 @@ const beatHeart = (stream: grpc.ClientDuplexStream<EventStreamRequest, EventStre
 }
 
 
-// process.on("uncaughtException", (err) => {
-//     console.log(`process on uncaughtException error: ${err}`);
-//     win.webContents.send("client-error", `${err}`);
-// });
-// process.on("unhandledRejection", (err) => {
-//     console.log(`process on unhandledRejection error: ${err}`);
-//     win.webContents.send("client-error", `${err}`);
-// });
+process.on("uncaughtException", (err) => {
+    const data = new Date();
+
+    console.log(`${nowDate()} process on uncaughtException error: ${err}`);
+    win.webContents.send("client-error", `${err}`);
+});
+process.on("unhandledRejection", (err) => {
+    console.log(`${nowDate()} process on unhandledRejection error: ${err}`);
+    win.webContents.send("client-error", `${err}`);
+});
+
+const nowDate = () => {
+    const date = new Date();
+    let month: string | number = date.getMonth() + 1;
+    let strDate: string | number = date.getDate();
+
+    if (month <= 9) {
+        month = "0" + month;
+    }
+
+    if (strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+
+    return date.getFullYear() + "-" + month + "-" + strDate + " "
+        + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + ":" + date.getMilliseconds();
+}

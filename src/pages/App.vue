@@ -53,17 +53,18 @@
               <v-list-item-group>
                 <div v-if="contactType === 'friend'">
                   <v-list-item
+                      @click="openContactWindow(uuid)"
                       v-for="uuid in friendList"
                       :key="uuid">
                     <v-list-item-avatar size="24">
                       <v-img
-                          :src="$store.state.commonUserInfo.userInfo[uuid].avatar"
+                          :src="$store.state.commonUserInfo.userInfo[uuid] !== undefined ? $store.state.commonUserInfo.userInfo[uuid].avatar : ''"
                       ></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
                       <v-list-item-title
-                          v-text="$store.state.commonUserInfo.userInfo[uuid].nickname"></v-list-item-title>
+                          v-text="$store.state.commonUserInfo.userInfo[uuid] !== undefined ? $store.state.commonUserInfo.userInfo[uuid].nickname : ''"></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </div>
@@ -308,10 +309,7 @@ export default {
       this.messageBoxInnerHeight = window.innerHeight - 72 - 1 - 52 - 16;
     }
 
-    ipcRenderer.send("online", {
-      token: this.$cookies.get("token"),
-      uuid: this.$store.state.userInfo.uuid,
-    })
+    this.online()
     ipcRenderer.on("token-unauthenticated", () => {
     })
     ipcRenderer.on("client-error", ((event, args) => {
@@ -327,11 +325,49 @@ export default {
       console.log(`friend-list: ${args}`)
       this.friendList = args
       // 拉一遍userInfo
-      ipcRenderer.send("userinfo-list-request", args)
+      this.loadCommonUserinfo(args);
     }))
     ipcRenderer.on("userinfo-list", ((event, args) => {
       this.$store.commit("commonUserInfo/setUserInfo", args)
     }))
+    ipcRenderer.on("end", () => {
+      setTimeout(()=>{
+        this.online()
+      }, 1000)
+    })
+  },
+  methods: {
+    online() {
+      console.log(`${this.nowDate()} online`)
+      ipcRenderer.send("online", {
+        token: this.$cookies.get("token"),
+        uuid: this.$store.state.userInfo.uuid,
+      })
+    },
+    openContactWindow(uuid) {
+      console.log(uuid)
+    },
+    loadCommonUserinfo(getList) {
+      //console.log(getList)
+      ipcRenderer.send("userinfo-list-request", getList)
+    },
+    nowDate() {
+      const date = new Date();
+      let month = date.getMonth() + 1;
+      let strDate = date.getDate();
+
+      if (month <= 9) {
+        month = "0" + month;
+      }
+
+      if (strDate <= 9) {
+        strDate = "0" + strDate;
+      }
+
+      return date.getFullYear() + "-" + month + "-" + strDate + " "
+          + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + ":" + date.getMilliseconds();
+    }
+
   },
 }
 </script>

@@ -23,10 +23,10 @@ const mutations = {
     addFriendRequest(state: State, payload: Array<AddFriendMessage>) {
         for (const message of payload) {
             let i = state.friendRequest.length - 1
-            console.log(state.friendRequest)
+            //console.log(state.friendRequest)
             let alreadyIn = false
             while (i > 0 && state.friendRequest[i].eventId <= message.eventId) {
-                if (state.friendRequest[i].eventId === message.eventId) {
+                if (state.friendRequest[i].eventUuid === message.eventUuid) {
                     alreadyIn = true
                     break
                 }
