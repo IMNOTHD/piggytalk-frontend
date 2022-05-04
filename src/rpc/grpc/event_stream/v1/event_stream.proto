@@ -1,5 +1,6 @@
 // protoc --plugin=protoc-gen-ts=..\..\..\..\..\node_modules\.bin\protoc-gen-ts.cmd --ts_out=. -I . .\event_stream.proto
 // grpc_tools_node_protoc --js_out=import_style=commonjs,binary:. --grpc_out=. .\event_stream.proto
+// event_stream_grpc_pb.js修改var grpc = require('@grpc/grpc-js');
 syntax = "proto3";
 
 package gateway.api.event.v1;
@@ -29,6 +30,8 @@ message EventStreamRequest {
     ListUserInfoRequest listUserInfoRequest = 11;
     ListFriendRequestRequest listFriendRequestRequest = 12;
     AckFriendMessageRequest ackFriendMessageRequest = 13;
+    ListUnAckSingleMessageRequest listUnAckSingleMessageRequest = 14;
+    ListSingleMessageRequest listSingleMessageRequest = 15;
   }
 }
 
@@ -49,11 +52,26 @@ message EventStreamResponse {
     ListUserInfoResponse listUserInfoResponse = 13;
     ListFriendRequestResponse listFriendRequestResponse = 14;
     AckFriendMessageResponse ackFriendMessageResponse = 15;
+    ListUnAckSingleMessageResponse listUnAckSingleMessageResponse = 16;
+    ListSingleMessageResponse listSingleMessageResponse = 17;
   }
 }
 
 // ------------------------------
 // 以下为客户端发起的request event
+
+// 查询有多少未接受的single消息
+message ListUnAckSingleMessageRequest {
+  string token = 1;
+}
+
+// 查询single消息
+message ListSingleMessageRequest {
+  string token = 1;
+  string friendUuid = 2;
+  int64 count = 3;
+  int64 startId = 4;
+}
 
 // 登录后上线request
 message OnlineRequest {
@@ -139,6 +157,25 @@ message AckFriendMessageRequest {
 
 // ------------------------------
 // 以下为服务端发起的response event
+
+// 查询有多少未接受的single消息
+message ListUnAckSingleMessageResponse {
+  message SingleMessage {
+    string friendUuid = 1;
+    int64 unAck = 2;
+  }
+  repeated SingleMessage singleMessage = 1;
+}
+
+message ListSingleMessageResponse {
+  message MessageStruct {
+    Message message = 1;
+    int64 messageId = 2;
+    string messageUuid = 3;
+  }
+  repeated MessageStruct messageStruct = 1;
+  string friendUuid = 2;
+}
 
 // 登录后上线response
 message OnlineResponse {

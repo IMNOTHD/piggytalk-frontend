@@ -52,21 +52,24 @@
             <v-list nav de>
               <v-list-item-group>
                 <div v-if="contactType === 'friend'">
-                  <v-list-item
-                      @click="openContactWindow(uuid)"
-                      v-for="uuid in friendList"
-                      :key="uuid">
-                    <v-list-item-avatar size="24">
-                      <v-img
-                          :src="$store.state.commonUserInfo.userInfo[uuid] !== undefined ? $store.state.commonUserInfo.userInfo[uuid].avatar : ''"
-                      ></v-img>
-                    </v-list-item-avatar>
+                  <div v-if="refreshCommonUserinfo">
+                    <v-list-item
+                        @click="openFriendContactWindow(uuid)"
+                        v-for="uuid in friendList"
+                        :key="uuid">
+                      <v-list-item-avatar size="24">
+                        <v-img v-if="$store.state.commonUserInfo.userInfo[uuid] !== undefined"
+                               :src="$store.state.commonUserInfo.userInfo[uuid].avatar"></v-img>
+                        <v-img v-else :src="''"></v-img>
+                      </v-list-item-avatar>
 
-                    <v-list-item-content>
-                      <v-list-item-title
-                          v-text="$store.state.commonUserInfo.userInfo[uuid] !== undefined ? $store.state.commonUserInfo.userInfo[uuid].nickname : ''"></v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
+                      <v-list-item-content>
+                        <v-list-item-title v-if="$store.state.commonUserInfo.userInfo[uuid] !== undefined"
+                                           v-text="$store.state.commonUserInfo.userInfo[uuid].nickname"></v-list-item-title>
+                        <v-list-item-title v-else v-text="''"></v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </div>
                 </div>
                 <div v-else>
                   <v-list-item
@@ -99,34 +102,55 @@
                   active-class="ml-n3 pl-5"
                   @click.stop="openContact = !openContact"
                   :input-value="openContact">
+
                 <v-list-item-icon>
-                  <v-icon>mdi-account-multiple</v-icon>
+
+                  <v-badge :content="5">
+                    <v-icon>mdi-account-multiple</v-icon>
+                  </v-badge>
                 </v-list-item-icon>
                 <v-list-item-title>联系人</v-list-item-title>
+
               </v-list-item>
             </v-list>
 
             <v-divider></v-divider>
 
             <v-list nav>
-              <v-virtual-scroll
-                  :items="items"
-                  :height="messageBoxInnerHeight"
-                  item-height="64">
-                <template v-slot:default="{ item }">
-                  <v-list-item
-                      :key="item.title"
-                      link>
-                    <v-list-item-icon>
-                      <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-item-icon>
+              <v-list-item-group
+                  v-model="selectedTalk">
+                <v-virtual-scroll
+                    :items="talkList"
+                    :height="messageBoxInnerHeight"
+                    item-height="64">
+                  <template v-slot:default="{ item }">
+                    <v-list-item
+                        @click="jumpToTalk(item.talkUuid)"
+                        :key="item.talkUuid"
+                        link>
+                      <v-list-item-avatar>
+                        <v-badge
+                            :content="item.unAck"
+                            :value="item.unAck"
+                            overlap>
 
-                    <v-list-item-content>
-                      <v-list-item-title>{{ item.title }}</v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-              </v-virtual-scroll>
+                          <v-avatar size="24">
+                            <v-img v-if="$store.state.commonUserInfo.userInfo[item.talkUuid] !== undefined"
+                                   :src="$store.state.commonUserInfo.userInfo[item.talkUuid].avatar"></v-img>
+                            <v-img v-else :src="''"></v-img>
+                          </v-avatar>
+                        </v-badge>
+                      </v-list-item-avatar>
+
+                      <v-list-item-content>
+                        <v-list-item-title v-if="$store.state.commonUserInfo.userInfo[item.talkUuid] !== undefined"
+                                           v-text="$store.state.commonUserInfo.userInfo[item.talkUuid].nickname"></v-list-item-title>
+                        <v-list-item-title v-else v-text="''"></v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+                </v-virtual-scroll>
+              </v-list-item-group>
             </v-list>
 
             <template v-slot:append>
@@ -144,12 +168,24 @@
         </div>
       </div>
     </el-aside>
+
     <el-container>
       <el-header>
         <v-app-bar
             height="73"
             clipped-right
             flat>
+          <div v-if="selectedTalk !== undefined && selectedTalk !== null">
+            <v-btn
+                @click="closeCurrentTalk"
+                icon>
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <span class="ml-4 text-h6"
+                v-if="$store.state.commonUserInfo.userInfo[talkList[selectedTalk].talkUuid] !== undefined">
+              {{ $store.state.commonUserInfo.userInfo[talkList[selectedTalk].talkUuid].nickname }}
+            </span>
+          </div>
           <v-spacer></v-spacer>
           <v-responsive max-width="156" content-class="d-flex flex-row justify-end">
 
@@ -194,6 +230,7 @@
 
       </el-header>
       <el-main>
+        <router-view></router-view>
       </el-main>
       <el-footer>
         <v-text-field
@@ -266,6 +303,7 @@ export default {
   name: "App",
   components: {AddRelationMessagePage, AddRelationPage, AvatarCropper},
   data: () => ({
+    refreshCommonUserinfo: true,
     avatarCropperVisible: false,
     addRelationPageVisible: false,
     addRelationMessagePageVisible: false,
@@ -299,7 +337,9 @@ export default {
       {title: 'My Account', icon: 'mdi-account'},
       {title: 'Users', icon: 'mdi-account-group-outline'},
     ],
-    eventCall: null
+    selectedTalk: null,
+    talkList: [],
+    eventCall: null,
   }),
   created() {
   },
@@ -318,7 +358,9 @@ export default {
 
     ipcRenderer.on("online-success", () => {
       // 登录成功, 完成相应数据拉取
+      console.log("online-success")
       ipcRenderer.send("list-friend-request")
+      ipcRenderer.send("list-talk-ack-request")
     })
 
     ipcRenderer.on("friend-list", ((event, args) => {
@@ -328,15 +370,44 @@ export default {
       this.loadCommonUserinfo(args);
     }))
     ipcRenderer.on("userinfo-list", ((event, args) => {
+      this.refreshCommonUserinfo = false
       this.$store.commit("commonUserInfo/setUserInfo", args)
+      this.refreshCommonUserinfo = true
     }))
     ipcRenderer.on("end", () => {
-      setTimeout(()=>{
+      setTimeout(() => {
         this.online()
       }, 1000)
     })
+    ipcRenderer.on("list-talk-ack", ((event, args) => {
+      this.listAckCount(args)
+    }))
   },
   methods: {
+    jumpToTalk(talkUuid) {
+      this.$router.push(`/app/${talkUuid}`).catch(err => {
+        // Ignore the vuex err regarding  navigating to the page they are already on.
+        if (
+            err.name !== 'NavigationDuplicated' &&
+            !err.message.includes('Avoided redundant navigation to current location')
+        ) {
+          // But print any other errors to the console
+          console.log(err);
+        }
+      })
+    },
+    closeCurrentTalk() {
+      this.selectedTalk = null
+      this.$router.push('/app')
+    },
+    listAckCount(list) {
+      const uuidList = []
+      for (let i = 0; i < list.length; i++) {
+        this.talkList.push(list[i])
+        uuidList.push(list[i].talkUuid)
+      }
+      this.loadCommonUserinfo(uuidList)
+    },
     online() {
       console.log(`${this.nowDate()} online`)
       ipcRenderer.send("online", {
@@ -344,8 +415,43 @@ export default {
         uuid: this.$store.state.userInfo.uuid,
       })
     },
-    openContactWindow(uuid) {
+    openFriendContactWindow(uuid) {
+      this.openContact = false
       console.log(uuid)
+      for (let i = 0; i < this.talkList.length; i++) {
+        //console.log(`${this.talkList[i].talkUuid}: ${this.talkList[i].talkUuid === uuid}`)
+        if (this.talkList[i].talkUuid === uuid) {
+          this.selectedTalk = uuid
+          this.$router.push(`/app/${uuid}`).catch(err => {
+            // Ignore the vuex err regarding  navigating to the page they are already on.
+            if (
+                err.name !== 'NavigationDuplicated' &&
+                !err.message.includes('Avoided redundant navigation to current location')
+            ) {
+              // But print any other errors to the console
+              console.log(err);
+            }
+          })
+          this.selectedTalk = i
+          return
+        }
+      }
+      this.talkList.unshift({
+        talkUuid: uuid,
+        unAck: 0,
+      })
+      this.selectedTalk = 0
+      this.$router.push(`/app/${uuid}`).catch(err => {
+        // Ignore the vuex err regarding  navigating to the page they are already on.
+        if (
+            err.name !== 'NavigationDuplicated' &&
+            !err.message.includes('Avoided redundant navigation to current location')
+        ) {
+          // But print any other errors to the console
+          console.log(err);
+        }
+      })
+      console.log(this.talkList)
     },
     loadCommonUserinfo(getList) {
       //console.log(getList)

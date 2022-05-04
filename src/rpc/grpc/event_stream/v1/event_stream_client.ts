@@ -10,7 +10,7 @@ import {
     EventStreamRequest,
     EventStreamResponse,
     ListFriendRequest,
-    ListFriendRequestRequest,
+    ListFriendRequestRequest, ListUnAckSingleMessageRequest,
     ListUserInfoRequest,
     OnlineRequest
 } from "./event_stream_pb";
@@ -25,6 +25,7 @@ const {v4: uuidV4} = require('uuid')
 
 const endPoint = "localhost:9090";
 let sessionId: string | undefined;
+let lock = false
 let intervalID: NodeJS.Timer;
 let token: string = "";
 let uid: string = "";
@@ -64,6 +65,9 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
             } else {
                 stream.write(new EventStreamRequest().setToken(token).setConfirmfriendrequest(new ConfirmFriendRequest().setEventuuid(args.eventUuid).setAddstatcode(AddStatCode.DENIED).setSendtime(Date.now())))
             }
+        })
+        ipcMain.on("list-talk-ack-request", () => {
+            stream.write(new EventStreamRequest().setToken(token).setListunacksinglemessagerequest(new ListUnAckSingleMessageRequest().setToken(token)))
         })
 
         stream.on("data", (data: EventStreamResponse) => {
@@ -161,14 +165,32 @@ const eventStream = (t: string, u: string, ipcMain: electron.IpcMain) => {
                     stream.write(new EventStreamRequest().setToken(token).setAckfriendmessagerequest(new AckFriendMessageRequest().setToken(token).setEventidList(ackList)))
                     break
                 }
+                case EventStreamResponse.EventCase.LISTUNACKSINGLEMESSAGERESPONSE: {
+                    const list: Array<any> = new Array<any>()
+                    const unAckList = data.getListunacksinglemessageresponse()?.getSinglemessageList()
+                    if (unAckList !== undefined) {
+                        for (let i = 0; i < unAckList.length; i++) {
+                            list.push({
+                                talkUuid: unAckList[i].getFrienduuid(),
+                                unAck: unAckList[i].getUnack(),
+                            })
+                        }
+                    }
+                    win.webContents.send("list-talk-ack", list)
+                    console.log(list)
+                    break
+                }
                 default:
                     break
             }
         });
 
         stream.on("end", () => {
+            sessionId = undefined
+            lock = false
             console.log(`${nowDate()} end`)
             win.webContents.send("end")
+            clearInterval(intervalID)
             resolve();
         });
 
@@ -184,8 +206,11 @@ async function main(token: string, uuid: string, i: electron.IpcMain) {
 export default function (i: electron.IpcMain, w: electron.BrowserWindow) {
     i.on("online", (event, args) => {
         console.log(args.token)
-        win = w;
-        main(args.token, args.uuid, i).then((_) => _);
+        if (!lock) {
+            win = w;
+            lock = true
+            main(args.token, args.uuid, i).then((_) => _);
+        }
     })
 }
 

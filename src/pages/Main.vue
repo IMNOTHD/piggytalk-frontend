@@ -1,12 +1,16 @@
 <template>
-  <div>
-    <v-btn @click="$router.push('/login')"></v-btn>
+  <div style="height: 100%; display: flex">
+    <div style="height: 200px; width: 400px; margin: auto">
+      <v-img src="https://i.impiggy.cn/images/2022/05/04/piggytalk77d713ae5a9c416b.png"></v-img>
 
-    <v-file-input
-        @change="onUpload"
-        v-model="file"
-        accept="image/*">
-    </v-file-input>
+
+      <div class="d-flex flex-row mt-16">
+
+        <v-btn class="ml-2" outlined color="primary" large @click="$router.push('/login')">登&nbsp;&nbsp;录</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn class="mr-2" outlined color="primary" large @click="$router.push('/login')">注&nbsp;&nbsp;册</v-btn>
+      </div>
+    </div>
   </div>
 </template>
 

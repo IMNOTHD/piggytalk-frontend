@@ -70,6 +70,16 @@ export class EventStreamRequest extends jspb.Message {
     getAckfriendmessagerequest(): AckFriendMessageRequest | undefined;
     setAckfriendmessagerequest(value?: AckFriendMessageRequest): EventStreamRequest;
 
+    hasListunacksinglemessagerequest(): boolean;
+    clearListunacksinglemessagerequest(): void;
+    getListunacksinglemessagerequest(): ListUnAckSingleMessageRequest | undefined;
+    setListunacksinglemessagerequest(value?: ListUnAckSingleMessageRequest): EventStreamRequest;
+
+    hasListsinglemessagerequest(): boolean;
+    clearListsinglemessagerequest(): void;
+    getListsinglemessagerequest(): ListSingleMessageRequest | undefined;
+    setListsinglemessagerequest(value?: ListSingleMessageRequest): EventStreamRequest;
+
     getEventCase(): EventStreamRequest.EventCase;
 
     serializeBinary(): Uint8Array;
@@ -97,6 +107,8 @@ export namespace EventStreamRequest {
         listuserinforequest?: ListUserInfoRequest.AsObject,
         listfriendrequestrequest?: ListFriendRequestRequest.AsObject,
         ackfriendmessagerequest?: AckFriendMessageRequest.AsObject,
+        listunacksinglemessagerequest?: ListUnAckSingleMessageRequest.AsObject,
+        listsinglemessagerequest?: ListSingleMessageRequest.AsObject,
     }
 
     export enum EventCase {
@@ -113,6 +125,8 @@ export namespace EventStreamRequest {
         LISTUSERINFOREQUEST = 11,
         LISTFRIENDREQUESTREQUEST = 12,
         ACKFRIENDMESSAGEREQUEST = 13,
+        LISTUNACKSINGLEMESSAGEREQUEST = 14,
+        LISTSINGLEMESSAGEREQUEST = 15,
     }
 
 }
@@ -185,6 +199,16 @@ export class EventStreamResponse extends jspb.Message {
     getAckfriendmessageresponse(): AckFriendMessageResponse | undefined;
     setAckfriendmessageresponse(value?: AckFriendMessageResponse): EventStreamResponse;
 
+    hasListunacksinglemessageresponse(): boolean;
+    clearListunacksinglemessageresponse(): void;
+    getListunacksinglemessageresponse(): ListUnAckSingleMessageResponse | undefined;
+    setListunacksinglemessageresponse(value?: ListUnAckSingleMessageResponse): EventStreamResponse;
+
+    hasListsinglemessageresponse(): boolean;
+    clearListsinglemessageresponse(): void;
+    getListsinglemessageresponse(): ListSingleMessageResponse | undefined;
+    setListsinglemessageresponse(value?: ListSingleMessageResponse): EventStreamResponse;
+
     getEventCase(): EventStreamResponse.EventCase;
 
     serializeBinary(): Uint8Array;
@@ -214,6 +238,8 @@ export namespace EventStreamResponse {
         listuserinforesponse?: ListUserInfoResponse.AsObject,
         listfriendrequestresponse?: ListFriendRequestResponse.AsObject,
         ackfriendmessageresponse?: AckFriendMessageResponse.AsObject,
+        listunacksinglemessageresponse?: ListUnAckSingleMessageResponse.AsObject,
+        listsinglemessageresponse?: ListSingleMessageResponse.AsObject,
     }
 
     export enum EventCase {
@@ -230,8 +256,59 @@ export namespace EventStreamResponse {
         LISTUSERINFORESPONSE = 13,
         LISTFRIENDREQUESTRESPONSE = 14,
         ACKFRIENDMESSAGERESPONSE = 15,
+        LISTUNACKSINGLEMESSAGERESPONSE = 16,
+        LISTSINGLEMESSAGERESPONSE = 17,
     }
 
+}
+
+export class ListUnAckSingleMessageRequest extends jspb.Message { 
+    getToken(): string;
+    setToken(value: string): ListUnAckSingleMessageRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListUnAckSingleMessageRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ListUnAckSingleMessageRequest): ListUnAckSingleMessageRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListUnAckSingleMessageRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListUnAckSingleMessageRequest;
+    static deserializeBinaryFromReader(message: ListUnAckSingleMessageRequest, reader: jspb.BinaryReader): ListUnAckSingleMessageRequest;
+}
+
+export namespace ListUnAckSingleMessageRequest {
+    export type AsObject = {
+        token: string,
+    }
+}
+
+export class ListSingleMessageRequest extends jspb.Message { 
+    getToken(): string;
+    setToken(value: string): ListSingleMessageRequest;
+    getFrienduuid(): string;
+    setFrienduuid(value: string): ListSingleMessageRequest;
+    getCount(): number;
+    setCount(value: number): ListSingleMessageRequest;
+    getStartid(): number;
+    setStartid(value: number): ListSingleMessageRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListSingleMessageRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ListSingleMessageRequest): ListSingleMessageRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListSingleMessageRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListSingleMessageRequest;
+    static deserializeBinaryFromReader(message: ListSingleMessageRequest, reader: jspb.BinaryReader): ListSingleMessageRequest;
+}
+
+export namespace ListSingleMessageRequest {
+    export type AsObject = {
+        token: string,
+        frienduuid: string,
+        count: number,
+        startid: number,
+    }
 }
 
 export class OnlineRequest extends jspb.Message { 
@@ -520,6 +597,109 @@ export namespace AckFriendMessageRequest {
         token: string,
         eventidList: Array<number>,
     }
+}
+
+export class ListUnAckSingleMessageResponse extends jspb.Message { 
+    clearSinglemessageList(): void;
+    getSinglemessageList(): Array<ListUnAckSingleMessageResponse.SingleMessage>;
+    setSinglemessageList(value: Array<ListUnAckSingleMessageResponse.SingleMessage>): ListUnAckSingleMessageResponse;
+    addSinglemessage(value?: ListUnAckSingleMessageResponse.SingleMessage, index?: number): ListUnAckSingleMessageResponse.SingleMessage;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListUnAckSingleMessageResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ListUnAckSingleMessageResponse): ListUnAckSingleMessageResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListUnAckSingleMessageResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListUnAckSingleMessageResponse;
+    static deserializeBinaryFromReader(message: ListUnAckSingleMessageResponse, reader: jspb.BinaryReader): ListUnAckSingleMessageResponse;
+}
+
+export namespace ListUnAckSingleMessageResponse {
+    export type AsObject = {
+        singlemessageList: Array<ListUnAckSingleMessageResponse.SingleMessage.AsObject>,
+    }
+
+
+    export class SingleMessage extends jspb.Message { 
+        getFrienduuid(): string;
+        setFrienduuid(value: string): SingleMessage;
+        getUnack(): number;
+        setUnack(value: number): SingleMessage;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): SingleMessage.AsObject;
+        static toObject(includeInstance: boolean, msg: SingleMessage): SingleMessage.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: SingleMessage, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): SingleMessage;
+        static deserializeBinaryFromReader(message: SingleMessage, reader: jspb.BinaryReader): SingleMessage;
+    }
+
+    export namespace SingleMessage {
+        export type AsObject = {
+            frienduuid: string,
+            unack: number,
+        }
+    }
+
+}
+
+export class ListSingleMessageResponse extends jspb.Message { 
+    clearMessagestructList(): void;
+    getMessagestructList(): Array<ListSingleMessageResponse.MessageStruct>;
+    setMessagestructList(value: Array<ListSingleMessageResponse.MessageStruct>): ListSingleMessageResponse;
+    addMessagestruct(value?: ListSingleMessageResponse.MessageStruct, index?: number): ListSingleMessageResponse.MessageStruct;
+    getFrienduuid(): string;
+    setFrienduuid(value: string): ListSingleMessageResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListSingleMessageResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ListSingleMessageResponse): ListSingleMessageResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListSingleMessageResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListSingleMessageResponse;
+    static deserializeBinaryFromReader(message: ListSingleMessageResponse, reader: jspb.BinaryReader): ListSingleMessageResponse;
+}
+
+export namespace ListSingleMessageResponse {
+    export type AsObject = {
+        messagestructList: Array<ListSingleMessageResponse.MessageStruct.AsObject>,
+        frienduuid: string,
+    }
+
+
+    export class MessageStruct extends jspb.Message { 
+
+        hasMessage(): boolean;
+        clearMessage(): void;
+        getMessage(): Message | undefined;
+        setMessage(value?: Message): MessageStruct;
+        getMessageid(): number;
+        setMessageid(value: number): MessageStruct;
+        getMessageuuid(): string;
+        setMessageuuid(value: string): MessageStruct;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): MessageStruct.AsObject;
+        static toObject(includeInstance: boolean, msg: MessageStruct): MessageStruct.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: MessageStruct, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): MessageStruct;
+        static deserializeBinaryFromReader(message: MessageStruct, reader: jspb.BinaryReader): MessageStruct;
+    }
+
+    export namespace MessageStruct {
+        export type AsObject = {
+            message?: Message.AsObject,
+            messageid: number,
+            messageuuid: string,
+        }
+    }
+
 }
 
 export class OnlineResponse extends jspb.Message { 
