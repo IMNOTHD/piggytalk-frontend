@@ -105,9 +105,8 @@
 
                 <v-list-item-icon>
 
-                  <v-badge :content="5">
+
                     <v-icon>mdi-account-multiple</v-icon>
-                  </v-badge>
                 </v-list-item-icon>
                 <v-list-item-title>联系人</v-list-item-title>
 
@@ -232,18 +231,6 @@
       <el-main>
         <router-view></router-view>
       </el-main>
-      <el-footer>
-        <v-text-field
-            dense
-            flat
-            hide-details
-            rounded
-            solo
-            solo-inverted
-            prepend-icon="mdi-emoticon"
-            append-outer-icon="mdi-send"
-        ></v-text-field>
-      </el-footer>
     </el-container>
 
     <!--侧边栏-->
